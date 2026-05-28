@@ -1,0 +1,2733 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>k6 - Manual de Usuario Completo: De principiante a experto</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.55;
+            scroll-behavior: smooth;
+        }
+        .wrapper {
+            display: flex;
+            max-width: 1700px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: #0f172a;
+            color: #e2e8f0;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 2rem 1.2rem;
+            flex-shrink: 0;
+        }
+        .sidebar h2 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #ff784b, #ff9a6e);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+        .sidebar .nav-group-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #64748b;
+            margin: 1.4rem 0 0.6rem 0.4rem;
+            font-weight: 700;
+        }
+        .sidebar .nav-group-title:first-of-type {
+            margin-top: 0;
+        }
+        .sidebar nav ul {
+            list-style: none;
+        }
+        .sidebar nav li {
+            margin-bottom: 0.4rem;
+        }
+        .sidebar nav a {
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: block;
+            padding: 0.4rem 0.75rem;
+            border-radius: 10px;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .sidebar nav a:hover, .sidebar nav a.active {
+            background: #ff784b25;
+            color: #ff9a6e;
+            padding-left: 1.1rem;
+        }
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 6px;
+        }
+        .content {
+            flex: 1;
+            padding: 2.5rem 3rem;
+            max-width: calc(100% - 320px);
+            min-width: 0;
+        }
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(145deg, #0f172a, #ff784b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+            line-height: 1.1;
+        }
+        .sub {
+            color: #334155;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        .section-header {
+            margin-top: 3rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #ff784b;
+            text-transform: uppercase;
+        }
+        h2 {
+            font-size: 1.85rem;
+            margin: 2rem 0 1rem;
+            padding-left: 1rem;
+            border-left: 5px solid #ff784b;
+            color: #0f172a;
+            scroll-margin-top: 2rem;
+        }
+        h3 {
+            font-size: 1.35rem;
+            margin: 1.5rem 0 0.8rem;
+            color: #1e293b;
+        }
+        h4 {
+            font-size: 1.1rem;
+            margin: 1rem 0 0.5rem;
+            color: #2d3a4b;
+        }
+        p {
+            margin-bottom: 1rem;
+        }
+        ul, ol {
+            margin: 0 0 1rem 1.5rem;
+        }
+        ul li, ol li {
+            margin-bottom: 0.4rem;
+        }
+        a {
+            color: #ff784b;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 0.2rem 0.4rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: #e11d48;
+        }
+        pre {
+            background: #0f172a;
+            color: #f1f5f9;
+            padding: 1.2rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 1.2rem 0;
+            font-size: 0.85rem;
+            line-height: 1.55;
+            font-family: 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+        }
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+            font-size: inherit;
+        }
+        .card {
+            background: #fef9f4;
+            border-radius: 1rem;
+            padding: 1.2rem 1.4rem;
+            margin: 1rem 0;
+            border-left: 5px solid #ff784b;
+        }
+        .tip {
+            background: #e6f7ec;
+            border-left: 4px solid #10b981;
+            padding: 1rem 1.2rem;
+            border-radius: 0.8rem;
+            margin: 1rem 0;
+        }
+        .warning {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem 1.2rem;
+            border-radius: 0.8rem;
+            margin: 1rem 0;
+        }
+        .danger {
+            background: #fef2f2;
+            border-left: 4px solid #ef4444;
+            padding: 1rem 1.2rem;
+            border-radius: 0.8rem;
+            margin: 1rem 0;
+        }
+        .info {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            padding: 1rem 1.2rem;
+            border-radius: 0.8rem;
+            margin: 1rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+        th, td {
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #f1f5f9;
+            font-weight: 700;
+        }
+        tr:nth-child(even) td {
+            background: #fafbfc;
+        }
+        footer {
+            margin-top: 3rem;
+            border-top: 1px solid #e2e8f0;
+            padding: 1.5rem 0;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        .badge {
+            background: #ff784b20;
+            padding: 0.2rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #ff784b;
+            display: inline-block;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        .badge-new {
+            background: #10b98120;
+            color: #059669;
+        }
+        .badge-advanced {
+            background: #8b5cf620;
+            color: #7c3aed;
+        }
+        .toc-intro {
+            background: linear-gradient(135deg, #fef9f4 0%, #fff 100%);
+            border-radius: 1rem;
+            padding: 1.5rem 1.8rem;
+            margin: 1.5rem 0 2.5rem;
+            border: 1px solid #ffe0d0;
+        }
+        .toc-intro h3 {
+            margin-top: 0;
+            color: #ff784b;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        @media (max-width: 900px) {
+            .wrapper {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                padding: 1rem;
+            }
+            .content {
+                max-width: 100%;
+                padding: 1.5rem;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <aside class="sidebar">
+        <h2>📈 k6: Manual completo</h2>
+        <nav>
+            <div class="nav-group-title">🟢 Fundamentos</div>
+            <ul>
+                <li><a href="#introduccion" class="active">🎯 Introducción y arquitectura</a></li>
+                <li><a href="#instalacion">💻 Instalación y primeros pasos</a></li>
+                <li><a href="#script-basico">📝 Script básico con opciones</a></li>
+                <li><a href="#cli-comandos">⌨️ CLI: comandos y banderas</a></li>
+                <li><a href="#ciclo-vida">🔄 Ciclo de vida de un test</a></li>
+            </ul>
+
+            <div class="nav-group-title">🟡 Validaciones y métricas</div>
+            <ul>
+                <li><a href="#checks-thresholds">✅ Checks &amp; Thresholds profundos</a></li>
+                <li><a href="#assertions-api">🎯 Assertions API (k6 2.0)</a></li>
+                <li><a href="#metricas-avanzadas">📊 Métricas personalizadas y tags</a></li>
+                <li><a href="#metricas-incorporadas">📈 Métricas integradas de k6</a></li>
+            </ul>
+
+            <div class="nav-group-title">🟠 Datos y escenarios</div>
+            <ul>
+                <li><a href="#datos-csv">📂 Carga masiva (CSV/JSON)</a></li>
+                <li><a href="#data-driven-avanzado">🗃️ Data-driven avanzado</a></li>
+                <li><a href="#escenarios-complejos">🎭 Escenarios y executors</a></li>
+                <li><a href="#tipos-pruebas">🧪 Tipos de pruebas (smoke, load, stress...)</a></li>
+                <li><a href="#pruebas-estres">⚡ Estrés, spike y soak</a></li>
+            </ul>
+
+            <div class="nav-group-title">🔴 Protocolos y testing avanzado</div>
+            <ul>
+                <li><a href="#api-rest-graphql">🚀 REST, GraphQL y patrones</a></li>
+                <li><a href="#auth-refresh">🔐 Autenticación y refresh token</a></li>
+                <li><a href="#grpc-websocket">🌐 gRPC y WebSocket</a></li>
+                <li><a href="#soap-sql">📡 SOAP, SQL y mensajería</a></li>
+                <li><a href="#browser-extension">🌐 k6 Browser: frontend real</a></li>
+                <li><a href="#browser-hybrid">🖥️ Pruebas híbridas (HTTP + Browser)</a></li>
+            </ul>
+
+            <div class="nav-group-title">🟣 Pro: integración y operación</div>
+            <ul>
+                <li><a href="#typescript-modules">📘 TypeScript y modularización</a></li>
+                <li><a href="#correlation-dynamic">🔗 Correlación y datos dinámicos</a></li>
+                <li><a href="#integracion-ci">🤖 CI/CD: GitHub, GitLab, Jenkins</a></li>
+                <li><a href="#resultados-reportes">📑 Reportes, dashboards y outputs</a></li>
+                <li><a href="#grafana-cloud">☁️ Grafana Cloud k6</a></li>
+                <li><a href="#observabilidad">🔭 Observabilidad y trazas (OTel)</a></li>
+            </ul>
+
+            <div class="nav-group-title">⚫ Experto</div>
+            <ul>
+                <li><a href="#xk6-extensiones">🧩 Extensiones xk6</a></li>
+                <li><a href="#chaos-engineering">💣 Chaos engineering (xk6-disruptor)</a></li>
+                <li><a href="#ai-assisted">🤖 AI-assisted testing (k6 2.0)</a></li>
+                <li><a href="#mejores-practicas">🏆 Mejores prácticas y antipatrones</a></li>
+                <li><a href="#patrones-arquitectura">🏛️ Patrones y arquitectura de proyecto</a></li>
+                <li><a href="#troubleshooting">🩺 Troubleshooting y debugging</a></li>
+                <li><a href="#glosario">📖 Glosario</a></li>
+                <li><a href="#recursos-finales">📚 Recursos para profundizar</a></li>
+            </ul>
+        </nav>
+    </aside>
+    <main class="content">
+        <h1>k6 - Manual de Usuario Completo</h1>
+        <div class="sub">Pruebas de rendimiento, carga, estrés y testing automatizado. Manual práctico de la suite Grafana k6 con ejemplos reales — de principiante a experto.</div>
+
+        <div class="toc-intro">
+            <h3>📖 Cómo está organizado este manual</h3>
+            <p>Esta guía está estructurada en seis bloques progresivos. Si vienes empezando, recorre en orden los <strong>Fundamentos</strong> y <strong>Validaciones y métricas</strong>. Si ya conoces lo básico, salta directo a <strong>Protocolos avanzados</strong>, <strong>CI/CD</strong> o <strong>Experto</strong>. Cada sección incluye explicación conceptual, ejemplos ejecutables y notas de buenas prácticas.</p>
+            <p style="margin: 0;"><strong>Versión cubierta:</strong> k6 1.x estable y novedades de k6 2.0 (AI-assisted, TypeScript nativo, Assertions API, compatibilidad ampliada con Playwright).</p>
+        </div>
+
+        <div class="section-header">━━━ Bloque 1 · Fundamentos ━━━</div>
+
+        <section id="introduccion">
+            <h2>🎯 Introducción a k6: arquitectura interna</h2>
+            <p>k6 es una herramienta de pruebas de carga de código abierto desarrollada por <strong>Grafana Labs</strong>, escrita en Go y con una API en JavaScript ES6 (con soporte nativo de TypeScript desde k6 1.0). A diferencia de JMeter o LoadRunner, k6 fue diseñado para ser <strong>eficiente, moderno y fácil de integrar en pipelines CI/CD</strong>. Cada usuario virtual (VU) corre en una <em>goroutine</em>, consumiendo muy pocos recursos — puedes simular miles de VUs en una sola máquina.</p>
+
+            <h3>¿Por qué k6 y no otro?</h3>
+            <table>
+                <tr><th>Característica</th><th>k6</th><th>JMeter</th><th>Gatling</th><th>Locust</th></tr>
+                <tr><td>Lenguaje de scripts</td><td>JS/TS</td><td>XML + Groovy</td><td>Scala/Java/Kotlin</td><td>Python</td></tr>
+                <tr><td>Consumo de CPU</td><td>Muy bajo</td><td>Alto (JVM)</td><td>Medio</td><td>Bajo</td></tr>
+                <tr><td>VUs por máquina</td><td>10k+</td><td>1k-2k</td><td>5k+</td><td>5k+</td></tr>
+                <tr><td>Integración CI/CD</td><td>Nativa</td><td>Compleja</td><td>Buena</td><td>Buena</td></tr>
+                <tr><td>GUI</td><td>No (code-first)</td><td>Sí (pesado)</td><td>Recorder web</td><td>Web UI</td></tr>
+                <tr><td>Protocolos nativos</td><td>HTTP/1, HTTP/2, WS, gRPC</td><td>Muchos vía plugins</td><td>HTTP, WS, JMS</td><td>HTTP principalmente</td></tr>
+            </table>
+
+            <div class="card">
+                <strong>🔧 Componentes clave de un script k6:</strong>
+                <ul>
+                    <li><strong>Inicialización (init):</strong> se ejecuta una sola vez por VU al arrancar (imports, <code>open()</code>, <code>SharedArray</code>).</li>
+                    <li><strong>Setup:</strong> función opcional ejecutada una vez antes del test (ideal para login, semilla de datos).</li>
+                    <li><strong>Función default (VU code):</strong> ejecutada por cada VU repetidamente durante el test.</li>
+                    <li><strong>Teardown:</strong> función opcional ejecutada una vez al finalizar (limpieza).</li>
+                    <li><strong>Opciones:</strong> stages, thresholds, escenarios, tags globales — declarativas.</li>
+                </ul>
+            </div>
+
+            <div class="tip">💡 k6 no es un navegador: las peticiones HTTP son a nivel de protocolo, lo que lo hace extremadamente rápido para APIs. Para pruebas de front-end real con renderizado se usa el módulo <code>k6/browser</code> (basado en Chromium DevTools Protocol).</div>
+
+            <h3>Diagrama de arquitectura</h3>
+            <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                       k6 CLI / Runner (Go)                  │
+│  ┌────────────┐  ┌────────────┐  ┌───────────────────────┐  │
+│  │ Scheduler  │→ │  VU pool   │→ │  HTTP/gRPC/WS engine  │  │
+│  └────────────┘  │ (goroutines│  └───────────────────────┘  │
+│                  │ + JS VM)   │              ↓              │
+│                  └────────────┘  ┌───────────────────────┐  │
+│         ↑                        │   Metrics aggregator  │  │
+│  ┌────────────┐                  └───────────────────────┘  │
+│  │ Tu script  │                              ↓              │
+│  │  (JS/TS)   │                  ┌───────────────────────┐  │
+│  └────────────┘                  │  Outputs (JSON, Prom, │  │
+│                                  │   Grafana Cloud, OTel)│  │
+│                                  └───────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+        </section>
+
+        <section id="instalacion">
+            <h2>💻 Instalación detallada y verificación</h2>
+
+            <h3>Windows</h3>
+            <pre><code># Opción 1: winget (Microsoft Store)
+winget install k6 --source winget
+
+# Opción 2: Chocolatey
+choco install k6
+
+# Opción 3: descargar el MSI desde https://dl.k6.io/msi/k6-latest-amd64.msi
+
+# Verificar
+k6 version</code></pre>
+
+            <h3>macOS</h3>
+            <pre><code># Homebrew (recomendado)
+brew install k6
+
+# Apple Silicon nativo (incluido)
+k6 version</code></pre>
+
+            <h3>Linux (Debian / Ubuntu)</h3>
+            <pre><code>sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+echo "deb [signed-by=/usr/share/keyrings/k6.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+sudo apt-get update
+sudo apt-get install k6</code></pre>
+
+            <h3>Linux (RHEL / Fedora / CentOS)</h3>
+            <pre><code>sudo dnf install https://dl.k6.io/rpm/repo.rpm
+sudo dnf install k6</code></pre>
+
+            <h3>Docker (ideal para CI)</h3>
+            <pre><code># Ejecutar un script via stdin
+docker run -i --rm grafana/k6:latest run - &lt; script.js
+
+# Montar un volumen (más cómodo para múltiples archivos)
+docker run --rm -v $(pwd):/scripts grafana/k6:latest run /scripts/test.js
+
+# Variables de entorno y red
+docker run --rm \
+  -v $(pwd):/scripts \
+  -e BASE_URL=https://api.staging.com \
+  --network host \
+  grafana/k6:latest run /scripts/test.js</code></pre>
+
+            <h3>Kubernetes (k6-operator)</h3>
+            <pre><code># Instalar el operador
+kubectl apply -f https://raw.githubusercontent.com/grafana/k6-operator/main/bundle.yaml
+
+# Definir un TestRun
+apiVersion: k6.io/v1alpha1
+kind: TestRun
+metadata:
+  name: k6-sample
+spec:
+  parallelism: 4          # 4 pods ejecutando en paralelo
+  script:
+    configMap:
+      name: k6-test
+      file: test.js</code></pre>
+
+            <div class="warning">⚠️ <strong>Extensiones (xk6):</strong> si necesitas funcionalidades extra (browser, kafka, sql, redis, etc.), instala <code>xk6</code> y compila tu propio binario. Desde k6 1.0 existe <em>auto-extension-resolution</em>: detecta imports <code>k6/x/*</code> en tu script y provisiona la extensión automáticamente al compilar. <code>go install go.k6.io/xk6/cmd/xk6@latest</code></div>
+
+            <h3>Verificar que todo funciona</h3>
+            <pre><code># 1. Versión
+k6 version
+
+# 2. Smoke test rapidísimo
+echo "import http from 'k6/http';
+export default function() { http.get('https://test.k6.io'); }" > smoke.js
+k6 run --vus 1 --duration 5s smoke.js</code></pre>
+        </section>
+
+        <section id="script-basico">
+            <h2>📝 Primer script completo con opciones y fases</h2>
+            <p>Anatomía de un script k6 profesional: imports, métricas personalizadas, opciones, setup, default y teardown.</p>
+            <pre><code>import http from 'k6/http';
+import { check, sleep } from 'k6';
+import { Rate } from 'k6/metrics';
+
+// ──────────────────────────────────────────────────────────
+// 1. Inicialización (se ejecuta una vez por VU al cargar)
+// ──────────────────────────────────────────────────────────
+const errores = new Rate('errores_total');
+
+// ──────────────────────────────────────────────────────────
+// 2. Opciones del test (declarativas)
+// ──────────────────────────────────────────────────────────
+export const options = {
+    stages: [
+        { duration: '1m', target: 50 },   // rampa hasta 50 VUs
+        { duration: '2m', target: 50 },   // mantener 50 VUs
+        { duration: '30s', target: 0 },   // degradado
+    ],
+    thresholds: {
+        http_req_duration: ['p(95) < 500', 'p(99) < 800'],
+        http_req_failed:   ['rate < 0.01'],
+        errores_total:     ['rate < 0.05'],
+    },
+    tags: { environment: 'staging', team: 'backend' },
+};
+
+// ──────────────────────────────────────────────────────────
+// 3. Setup: se ejecuta UNA VEZ antes de las iteraciones
+// ──────────────────────────────────────────────────────────
+export function setup() {
+    const res = http.post('https://reqres.in/api/login', JSON.stringify({
+        email: 'eve.holt@reqres.in',
+        password: 'cityslicka',
+    }), { headers: { 'Content-Type': 'application/json' } });
+
+    return { authToken: res.json('token') };
+}
+
+// ──────────────────────────────────────────────────────────
+// 4. Función default: la ejecuta cada VU en cada iteración
+// ──────────────────────────────────────────────────────────
+export default function (data) {
+    const headers = { 'Authorization': `Bearer ${data.authToken}` };
+    const res = http.get('https://reqres.in/api/users/2', { headers });
+
+    const success = check(res, {
+        'status es 200':   (r) => r.status === 200,
+        'body tiene data': (r) => r.json('data') !== undefined,
+    });
+    errores.add(!success);
+
+    sleep(1);  // think time
+}
+
+// ──────────────────────────────────────────────────────────
+// 5. Teardown: limpieza final
+// ──────────────────────────────────────────────────────────
+export function teardown(data) {
+    console.log(`Test finalizado. Token usado: ${data.authToken}`);
+}</code></pre>
+
+            <div class="tip">📌 <strong>setup/teardown</strong> permiten autenticación, creación de datos de prueba y limpieza posterior — son fundamentales para entornos reales donde necesitas dejar el sistema limpio.</div>
+
+            <h3>Ejecutar el script</h3>
+            <pre><code># Ejecución básica
+k6 run script.js
+
+# Override de VUs y duración por CLI (ignora stages)
+k6 run --vus 100 --duration 30s script.js
+
+# Con variables de entorno
+k6 run --env BASE_URL=https://api.staging.com script.js
+
+# Con tag global
+k6 run --tag testid=release-2.1 script.js
+
+# Múltiples salidas
+k6 run --out json=raw.json --out csv=summary.csv script.js</code></pre>
+        </section>
+
+        <section id="cli-comandos">
+            <h2>⌨️ CLI de k6: comandos y banderas esenciales</h2>
+            <p>La línea de comandos es tu interfaz principal. Aquí tienes los comandos y opciones que más vas a usar.</p>
+
+            <h3>Comandos principales</h3>
+            <table>
+                <tr><th>Comando</th><th>Descripción</th></tr>
+                <tr><td><code>k6 run [script]</code></td><td>Ejecutar un test localmente</td></tr>
+                <tr><td><code>k6 cloud run [script]</code></td><td>Ejecutar el test en Grafana Cloud k6</td></tr>
+                <tr><td><code>k6 inspect [script]</code></td><td>Mostrar opciones, stages y módulos del script sin correrlo</td></tr>
+                <tr><td><code>k6 archive [script]</code></td><td>Crear un archivo .tar reproducible con todas las dependencias</td></tr>
+                <tr><td><code>k6 new</code></td><td>Generar un script de ejemplo (k6 1.0+)</td></tr>
+                <tr><td><code>k6 version</code></td><td>Versión instalada</td></tr>
+                <tr><td><code>k6 stats</code></td><td>Estadísticas del binario y extensiones cargadas</td></tr>
+            </table>
+
+            <h3>Banderas más usadas en <code>k6 run</code></h3>
+            <table>
+                <tr><th>Bandera</th><th>Uso</th></tr>
+                <tr><td><code>--vus N</code></td><td>Número de usuarios virtuales</td></tr>
+                <tr><td><code>--duration 30s</code></td><td>Duración total del test</td></tr>
+                <tr><td><code>--iterations N</code></td><td>Iteraciones totales (en vez de duración)</td></tr>
+                <tr><td><code>--stage 30s:10,1m:50</code></td><td>Stages inline (rampas)</td></tr>
+                <tr><td><code>--env KEY=value</code></td><td>Inyectar variables al script (<code>__ENV.KEY</code>)</td></tr>
+                <tr><td><code>--tag k=v</code></td><td>Tag global que se añade a todas las métricas</td></tr>
+                <tr><td><code>--out fmt=destino</code></td><td>Salida adicional: json, csv, influxdb, prometheus...</td></tr>
+                <tr><td><code>--summary-export f.json</code></td><td>Exportar el resumen final como JSON</td></tr>
+                <tr><td><code>--no-thresholds</code></td><td>Ignorar thresholds (útil para smoke)</td></tr>
+                <tr><td><code>--quiet</code></td><td>Modo silencioso (solo errores)</td></tr>
+                <tr><td><code>--http-debug</code></td><td>Volcar todas las peticiones HTTP (debug)</td></tr>
+                <tr><td><code>--linger</code></td><td>No cerrar al terminar (útil con outputs streaming)</td></tr>
+                <tr><td><code>--paused</code></td><td>Arrancar pausado (resume con <code>k6 resume</code>)</td></tr>
+                <tr><td><code>--compatibility-mode=base|extended</code></td><td>Modo ES6 (base usa goja, extended usa Babel)</td></tr>
+            </table>
+
+            <div class="info">ℹ️ <strong>Variables de entorno equivalentes:</strong> casi toda bandera tiene una variable <code>K6_*</code> equivalente. Ej: <code>K6_VUS=10 K6_DURATION=30s k6 run script.js</code>. Muy útil para Docker y CI.</div>
+        </section>
+
+        <section id="ciclo-vida">
+            <h2>🔄 Ciclo de vida de un test k6</h2>
+            <p>Entender el orden de ejecución es esencial para evitar errores como llamar <code>open()</code> dentro de <code>default</code> o crear métricas en mal sitio.</p>
+
+            <pre><code>┌─────────────────────────────────────────────────┐
+│  1. INIT (una vez por VU, al arrancar)          │
+│     - imports                                   │
+│     - declarar métricas custom                  │
+│     - open() de archivos                        │
+│     - SharedArray                               │
+│     - export const options = { ... }            │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│  2. SETUP (una vez, en VU especial)             │
+│     - autenticación maestra                     │
+│     - seed de datos                             │
+│     - return data → pasa a default y teardown   │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│  3. DEFAULT (cada VU, en bucle, durante test)   │
+│     - http requests                             │
+│     - checks, sleep                             │
+│     - métricas dinámicas                        │
+└─────────────────────────────────────────────────┘
+                       ↓
+┌─────────────────────────────────────────────────┐
+│  4. TEARDOWN (una vez, al finalizar)            │
+│     - cleanup de datos creados                  │
+│     - notificaciones                            │
+└─────────────────────────────────────────────────┘</code></pre>
+
+            <div class="warning">⚠️ <strong>Errores típicos por ignorar el ciclo:</strong>
+                <ul>
+                    <li>Llamar <code>open('./data.csv')</code> dentro de <code>default()</code> → ¡no funciona! Solo en INIT.</li>
+                    <li>Hacer requests pesados en setup sin medir el coste — su duración cuenta para el tiempo total del test.</li>
+                    <li>Crear métricas (<code>new Rate(...)</code>) dentro de <code>default</code> → error.</li>
+                    <li>Compartir estado mutable entre VUs vía variables globales → cada VU tiene su propia VM JS, no se ven entre sí.</li>
+                </ul>
+            </div>
+
+            <h3>Variables especiales disponibles en runtime</h3>
+            <table>
+                <tr><th>Variable</th><th>Significado</th></tr>
+                <tr><td><code>__VU</code></td><td>ID del usuario virtual actual (1-N). Es 0 durante init.</td></tr>
+                <tr><td><code>__ITER</code></td><td>Número de iteración del VU actual (empieza en 0).</td></tr>
+                <tr><td><code>__ENV</code></td><td>Objeto con todas las variables de entorno disponibles.</td></tr>
+                <tr><td><code>exec.scenario</code></td><td>Info del escenario en curso (vía <code>import exec from 'k6/execution'</code>).</td></tr>
+                <tr><td><code>exec.test.options</code></td><td>Acceso runtime a las opciones configuradas.</td></tr>
+            </table>
+
+            <pre><code>import exec from 'k6/execution';
+
+export default function () {
+    console.log(`VU=${exec.vu.idInTest} ITER=${exec.vu.iterationInScenario}`);
+    console.log(`Escenario: ${exec.scenario.name}, progreso: ${exec.scenario.progress}`);
+    console.log(`BASE_URL = ${__ENV.BASE_URL || 'no definida'}`);
+}</code></pre>
+        </section>
+
+        <div class="section-header">━━━ Bloque 2 · Validaciones y métricas ━━━</div>
+
+        <section id="checks-thresholds">
+            <h2>✅ Checks y Thresholds: validaciones robustas</h2>
+            <p>La distinción entre <strong>checks</strong> y <strong>thresholds</strong> es uno de los conceptos más importantes en k6:</p>
+            <table>
+                <tr><th></th><th>Checks</th><th>Thresholds</th></tr>
+                <tr><td>¿Detienen el test?</td><td>No (informativos)</td><td>Sí (pueden abortarlo con <code>abortOnFail</code>)</td></tr>
+                <tr><td>¿Afectan exit code?</td><td>No por defecto</td><td>Sí — exit 99 si fallan</td></tr>
+                <tr><td>Granularidad</td><td>Por iteración</td><td>Agregado global de métricas</td></tr>
+                <tr><td>Mejor para</td><td>Validar respuestas individuales</td><td>Definir SLOs del test</td></tr>
+            </table>
+
+            <h3>Checks básicos</h3>
+            <pre><code>import http from 'k6/http';
+import { check } from 'k6';
+
+export default function () {
+    const res = http.get('https://test-api.k6.io/public/crocodiles/1/');
+
+    check(res, {
+        'status 200':       (r) => r.status === 200,
+        'tiempo < 500ms':   (r) => r.timings.duration < 500,
+        'tiene id':         (r) => r.json('id') !== undefined,
+        'es JSON válido':   (r) => r.headers['Content-Type'].includes('application/json'),
+        'body no vacío':    (r) => r.body.length > 0,
+    });
+}</code></pre>
+
+            <h3>Thresholds avanzados con filtros por tag</h3>
+            <pre><code>export const options = {
+    thresholds: {
+        // Globales
+        http_req_failed:   ['rate < 0.01'],
+        http_reqs:         ['count > 1000'],
+        checks:            ['rate > 0.95'],
+
+        // Percentiles + media
+        http_req_duration: ['p(95) < 400', 'p(99) < 800', 'avg < 200'],
+
+        // Filtros por tag (sub-métricas)
+        'http_req_duration{type:critical}': ['p(90) < 300'],
+        'http_req_duration{endpoint:login}': ['p(95) < 500'],
+        'checks{type:critical}': ['rate > 0.99'],
+
+        // Por escenario
+        'http_req_duration{scenario:spike}': ['p(95) < 2000'],
+
+        // Con abortOnFail (corta el test si se viola)
+        http_req_duration: [
+            { threshold: 'p(95) < 500', abortOnFail: true, delayAbortEval: '30s' },
+        ],
+    },
+};
+
+export default function () {
+    http.get('https://api.example.com/users', {
+        tags: { type: 'critical', endpoint: 'users' },
+    });
+}</code></pre>
+
+            <h3>Checks que afectan el exit code</h3>
+            <p>Por defecto un check fallido <em>no</em> hace fallar la build de CI. Para que sí lo haga, conviértelo en threshold:</p>
+            <pre><code>export const options = {
+    thresholds: {
+        // Falla la build si menos del 99% de checks pasan
+        checks: [{ threshold: 'rate >= 0.99', abortOnFail: false }],
+    },
+};</code></pre>
+
+            <div class="tip">💡 Truco profesional: agrupa checks por dominio funcional con <code>group()</code> y aplica thresholds por grupo:
+            <pre><code>'group_duration{group:::Checkout}': ['p(95) < 800'],
+'checks{group:::Login}': ['rate > 0.99'],</code></pre>
+            </div>
+        </section>
+
+        <section id="assertions-api">
+            <h2>🎯 Assertions API <span class="badge badge-new">k6 2.0</span></h2>
+            <p>k6 2.0 introduce una <strong>Assertions API</strong> más expresiva, inspirada en Jest/Playwright. Se diferencia de <code>check</code> porque las aserciones <em>pueden</em> detener la iteración (estilo testing tradicional) y producen mensajes de error legibles.</p>
+            <pre><code>import { expect } from 'k6/expect';
+import http from 'k6/http';
+
+export default function () {
+    const res = http.get('https://api.example.com/products/42');
+
+    // Estilo fluent
+    expect(res.status).toBe(200);
+    expect(res.timings.duration).toBeLessThan(500);
+    expect(res.json('name')).toBe('Producto X');
+    expect(res.json('tags')).toContain('promo');
+    expect(res.json('price')).toBeGreaterThan(0);
+
+    // Negaciones
+    expect(res.json('deleted')).not.toBe(true);
+
+    // Soft assertions: no detienen pero registran el fallo
+    expect.soft(res.headers['Content-Type']).toContain('json');
+}</code></pre>
+            <div class="info">ℹ️ La Assertions API convive con <code>check()</code>. Usa <strong>checks</strong> cuando quieres seguir iterando aunque falle, y <strong>expect</strong> cuando un fallo debe abortar la iteración (test funcional). En la consola, los fallos de <code>expect</code> incluyen el valor recibido y el esperado — mucho más útil para debugging.</div>
+        </section>
+
+        <section id="metricas-avanzadas">
+            <h2>📊 Métricas personalizadas y etiquetas dinámicas</h2>
+            <p>k6 ofrece cuatro tipos de métricas custom:</p>
+            <table>
+                <tr><th>Tipo</th><th>Uso</th><th>Ejemplo</th></tr>
+                <tr><td><code>Counter</code></td><td>Acumulador monótono</td><td>Total de pedidos creados</td></tr>
+                <tr><td><code>Gauge</code></td><td>Último valor observado</td><td>Tamaño de respuesta</td></tr>
+                <tr><td><code>Rate</code></td><td>% de éxitos sobre el total</td><td>Tasa de errores</td></tr>
+                <tr><td><code>Trend</code></td><td>Estadísticas (min/avg/p95/p99...)</td><td>Duración de queries</td></tr>
+            </table>
+
+            <pre><code>import http from 'k6/http';
+import { Counter, Gauge, Rate, Trend } from 'k6/metrics';
+
+// Declarar las métricas (siempre en init, no dentro de default)
+const pedidosCreados   = new Counter('pedidos_creados');
+const tamanoUltimo     = new Gauge('tamano_respuesta_kb');
+const tasaCheckout     = new Rate('checkout_exitoso');
+const duracionDB       = new Trend('db_query_time', true);  // true → como duración
+
+export default function () {
+    const inicio = Date.now();
+    const res = http.post('https://api.tienda.com/checkout', JSON.stringify({ items: 3 }));
+    const ms = Date.now() - inicio;
+
+    // Counter (sólo suma)
+    if (res.status === 201) pedidosCreados.add(1);
+
+    // Gauge (último valor)
+    tamanoUltimo.add(res.body.length / 1024);
+
+    // Rate (true/false)
+    tasaCheckout.add(res.status === 201);
+
+    // Trend (estadísticas)
+    duracionDB.add(ms, { endpoint: 'checkout' });   // con tag
+}</code></pre>
+
+            <h3>Tags dinámicos por petición</h3>
+            <pre><code>let params = {
+    tags: {
+        endpoint: 'login',
+        region:   __ENV.REGION || 'us-east',
+        version:  'v2',
+    },
+};
+http.post('https://api.example/login', body, params);
+
+// Luego puedes filtrar en thresholds:
+// 'http_req_duration{endpoint:login,region:eu-west}': ['p(95) < 600']</code></pre>
+
+            <h3>Métricas personalizadas con submétricas</h3>
+            <pre><code>// Filtra automáticamente por tag en el resumen
+'pedidos_creados{type:premium}': ['count > 50'],
+'pedidos_creados{type:freemium}': ['count > 200'],</code></pre>
+        </section>
+
+        <section id="metricas-incorporadas">
+            <h2>📈 Métricas integradas de k6 (referencia)</h2>
+            <p>k6 emite docenas de métricas automáticamente. Esta es una referencia de las más usadas:</p>
+            <table>
+                <tr><th>Métrica</th><th>Tipo</th><th>Descripción</th></tr>
+                <tr><td><code>vus</code></td><td>Gauge</td><td>VUs activos en el momento</td></tr>
+                <tr><td><code>vus_max</code></td><td>Gauge</td><td>VUs máximos asignados</td></tr>
+                <tr><td><code>iterations</code></td><td>Counter</td><td>Iteraciones completadas totales</td></tr>
+                <tr><td><code>iteration_duration</code></td><td>Trend</td><td>Tiempo de una iteración completa</td></tr>
+                <tr><td><code>data_received</code></td><td>Counter</td><td>Bytes recibidos</td></tr>
+                <tr><td><code>data_sent</code></td><td>Counter</td><td>Bytes enviados</td></tr>
+                <tr><td><code>checks</code></td><td>Rate</td><td>Tasa de éxito de checks</td></tr>
+                <tr><td><code>http_reqs</code></td><td>Counter</td><td>Peticiones HTTP totales</td></tr>
+                <tr><td><code>http_req_duration</code></td><td>Trend</td><td>Tiempo total HTTP (sin sleep)</td></tr>
+                <tr><td><code>http_req_blocked</code></td><td>Trend</td><td>Tiempo esperando conexión libre</td></tr>
+                <tr><td><code>http_req_connecting</code></td><td>Trend</td><td>Tiempo de TCP connect</td></tr>
+                <tr><td><code>http_req_tls_handshaking</code></td><td>Trend</td><td>Tiempo de TLS handshake</td></tr>
+                <tr><td><code>http_req_sending</code></td><td>Trend</td><td>Tiempo enviando datos al servidor</td></tr>
+                <tr><td><code>http_req_waiting</code></td><td>Trend</td><td>TTFB - Time To First Byte</td></tr>
+                <tr><td><code>http_req_receiving</code></td><td>Trend</td><td>Tiempo recibiendo respuesta</td></tr>
+                <tr><td><code>http_req_failed</code></td><td>Rate</td><td>% de peticiones fallidas</td></tr>
+            </table>
+
+            <div class="info">ℹ️ <strong>Truco:</strong> si tu p95 de <code>http_req_duration</code> es malo pero <code>http_req_waiting</code> es bajo, el problema es de red/cliente. Si <code>http_req_waiting</code> es alto, el problema está en el servidor. <code>http_req_blocked</code> alto indica saturación de pool de conexiones.</div>
+        </section>
+
+        <div class="section-header">━━━ Bloque 3 · Datos y escenarios ━━━</div>
+
+        <section id="datos-csv">
+            <h2>📂 Carga masiva de datos desde CSV y JSON</h2>
+            <p>Para simular múltiples usuarios únicos sin colisiones, usa <code>SharedArray</code> — carga el dataset una sola vez en memoria compartida entre todos los VUs.</p>
+
+            <h3>CSV simple (split manual)</h3>
+            <pre><code>import { SharedArray } from 'k6/data';
+import http from 'k6/http';
+
+const usuarios = new SharedArray('credenciales', function () {
+    const data = open('./usuarios.csv');
+    return data.split('\n')
+        .filter(line => line.trim().length > 0)
+        .map(line => {
+            const [email, pass] = line.split(',');
+            return { email, pass };
+        });
+});
+
+export default function () {
+    const user = usuarios[(__VU + __ITER) % usuarios.length];  // determinista
+    http.post('https://api.example.com/login', JSON.stringify({
+        email: user.email,
+        password: user.pass,
+    }));
+}</code></pre>
+
+            <h3>CSV con headers (PapaParse)</h3>
+            <pre><code>import { SharedArray } from 'k6/data';
+import papaparse from 'https://jslib.k6.io/papaparse/5.1.0/index.js';
+
+const usuarios = new SharedArray('users', function () {
+    const csv = open('./100k_usuarios.csv');
+    return papaparse.parse(csv, { header: true, dynamicTyping: true }).data;
+});
+
+export default function () {
+    // VU N usa siempre el usuario N (determinismo total)
+    const user = usuarios[__VU % usuarios.length];
+    // ...
+}</code></pre>
+
+            <h3>JSON estructurado</h3>
+            <pre><code>const productos = new SharedArray('productos', () => {
+    return JSON.parse(open('./productos.json'));
+});</code></pre>
+
+            <div class="tip">📌 <strong>NOTA:</strong> <code>open()</code> solo funciona en fase de inicialización (fuera de la función default). Para archivos grandes (&gt;1GB) considera leer en fragmentos o usar SQL directamente con <code>xk6-sql</code>.</div>
+
+            <div class="warning">⚠️ <strong>No abuses de <code>open()</code> sin <code>SharedArray</code>:</strong> sin él, cada VU carga su propia copia del archivo en memoria. Con 500 VUs y un CSV de 50MB, son 25GB. <code>SharedArray</code> mantiene una sola copia.</div>
+        </section>
+
+        <section id="data-driven-avanzado">
+            <h2>🗃️ Data-driven avanzado: distribución sin colisiones</h2>
+            <p>Cuando cada usuario debe ser único (sin re-login del mismo email), necesitas una estrategia de distribución determinista.</p>
+
+            <h3>Estrategia 1: módulo VU+ITER (sin repeticiones inmediatas)</h3>
+            <pre><code>const usuarios = new SharedArray('users', loader);
+
+export default function () {
+    const idx = (__VU - 1) * exec.test.options.iterations + __ITER;
+    const user = usuarios[idx % usuarios.length];
+    // ...
+}</code></pre>
+
+            <h3>Estrategia 2: pool global con índice atómico (xk6-counter)</h3>
+            <pre><code>// Necesita compilar con xk6-counter
+import counter from 'k6/x/counter';
+const usuarios = new SharedArray('users', loader);
+
+export default function () {
+    const idx = counter.up('users-idx') - 1;   // único globalmente
+    const user = usuarios[idx % usuarios.length];
+}</code></pre>
+
+            <h3>Estrategia 3: redis para coordinación entre nodos (k6 distribuido)</h3>
+            <pre><code>import redis from 'k6/x/redis';
+const client = redis.newClient({ addrs: ['localhost:6379'] });
+
+export default async function () {
+    const idx = await client.incr('users-idx');
+    // ...
+}</code></pre>
+
+            <h3>Inyectar datasets enormes vía variables de entorno</h3>
+            <pre><code># En el shell de CI
+export USERS_FILE=$(realpath users-staging.csv)
+k6 run --env USERS_FILE=$USERS_FILE script.js
+
+# En el script
+const usuarios = new SharedArray('u', () =>
+    JSON.parse(open(__ENV.USERS_FILE).split('\n').map(parseLine))
+);</code></pre>
+
+            <div class="card">
+                <strong>🎯 Patrón "checkout único":</strong> en tests de e-commerce, cada VU debe usar un cart distinto. Usa una combinación de SharedArray + índice atómico para garantizar que ningún producto se compra dos veces.
+            </div>
+        </section>
+
+        <section id="escenarios-complejos">
+            <h2>🎭 Escenarios de ejecución avanzados</h2>
+            <p>Los escenarios reemplazan a <code>stages</code> y <code>vus</code> para múltiples patrones en un mismo test. Cada escenario tiene su propio <em>executor</em>, sus VUs, su función y sus tags.</p>
+
+            <h3>Tipos de executors</h3>
+            <table>
+                <tr><th>Executor</th><th>Controla</th><th>Caso de uso</th></tr>
+                <tr><td><code>shared-iterations</code></td><td>Iteraciones totales repartidas entre VUs</td><td>Benchmark "ejecuta N llamadas y mide"</td></tr>
+                <tr><td><code>per-vu-iterations</code></td><td>Iteraciones por cada VU</td><td>Smoke test reproducible (5 VUs × 10 iter)</td></tr>
+                <tr><td><code>constant-vus</code></td><td>VUs constantes durante un tiempo</td><td>Carga sostenida</td></tr>
+                <tr><td><code>ramping-vus</code></td><td>VUs siguiendo stages (rampas)</td><td>Test de stress progresivo</td></tr>
+                <tr><td><code>constant-arrival-rate</code></td><td>Tasa de iteraciones/seg constante</td><td>Throughput objetivo (X req/s)</td></tr>
+                <tr><td><code>ramping-arrival-rate</code></td><td>Tasa de iteraciones/seg con stages</td><td>Spike tests, simular tráfico realista</td></tr>
+                <tr><td><code>externally-controlled</code></td><td>Control en vivo via REST API</td><td>Demos, debugging interactivo</td></tr>
+            </table>
+
+            <h3>Ejemplo: 3 escenarios paralelos con executors distintos</h3>
+            <pre><code>export const options = {
+    scenarios: {
+        // 1. Carga constante a una API
+        constante_api: {
+            executor: 'constant-vus',
+            vus: 30,
+            duration: '5m',
+            tags: { test_type: 'load', endpoint: 'api' },
+            exec: 'apiTest',
+        },
+        // 2. Pico repentino (spike)
+        pico_repentino: {
+            executor: 'ramping-arrival-rate',
+            startRate: 50,
+            timeUnit: '1s',
+            preAllocatedVUs: 100,
+            maxVUs: 500,
+            stages: [
+                { duration: '30s', target: 200 },
+                { duration: '1m',  target: 200 },
+                { duration: '10s', target: 0   },
+            ],
+            tags: { test_type: 'spike' },
+            exec: 'apiTest',
+            startTime: '1m',         // arranca 1 minuto después
+        },
+        // 3. Smoke de browser en paralelo
+        smoke_browser: {
+            executor: 'per-vu-iterations',
+            vus: 2,
+            iterations: 5,
+            maxDuration: '2m',
+            exec: 'browserTest',
+            options: {
+                browser: { type: 'chromium' },
+            },
+        },
+    },
+};
+
+export function apiTest() {
+    http.get('https://api.example.com/products');
+}
+
+export function browserTest() {
+    // ...
+}</code></pre>
+
+            <div class="info">ℹ️ <strong>Diferencia clave:</strong> los executors basados en <em>VUs</em> generan tantas iteraciones como VUs te permitan; los basados en <em>arrival-rate</em> generan exactamente X iter/s sin importar lo que tarden — k6 ajustará VUs automáticamente hasta <code>maxVUs</code>. Para emular tráfico real (donde los usuarios llegan a un ritmo independiente del rendimiento), prefiere <code>arrival-rate</code>.</div>
+        </section>
+
+        <section id="tipos-pruebas">
+            <h2>🧪 Tipos de pruebas de rendimiento</h2>
+            <p>Más allá de los executors, k6 distingue varios <em>tipos</em> canónicos de pruebas. Conviene tener un script por cada uno:</p>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🚦 Smoke test</h4>
+                    <p>1-2 VUs por 30s. Verifica que el script <em>compila y corre</em>. Indispensable en cada commit.</p>
+                    <pre><code>export const options = {
+    vus: 1, duration: '30s',
+    thresholds: { http_req_failed: ['rate==0'] }
+};</code></pre>
+                </div>
+                <div class="card">
+                    <h4>⚖️ Load test</h4>
+                    <p>Tráfico "esperado" sostenido. Mide latencia y throughput bajo condiciones normales.</p>
+                    <pre><code>stages: [
+    { duration: '5m', target: 100 },
+    { duration: '30m', target: 100 },
+    { duration: '5m', target: 0 }
+]</code></pre>
+                </div>
+                <div class="card">
+                    <h4>💥 Stress test</h4>
+                    <p>Tráfico por encima de lo normal hasta encontrar el <em>breaking point</em>.</p>
+                    <pre><code>stages: [
+    { duration: '5m', target: 200 },
+    { duration: '5m', target: 500 },
+    { duration: '5m', target: 1000 },
+    { duration: '5m', target: 0 }
+]</code></pre>
+                </div>
+                <div class="card">
+                    <h4>⚡ Spike test</h4>
+                    <p>Pico repentino (Black Friday, lanzamiento de tickets). Verifica el comportamiento ante saltos abruptos.</p>
+                    <pre><code>stages: [
+    { duration: '10s', target: 2000 },
+    { duration: '3m',  target: 2000 },
+    { duration: '10s', target: 0 }
+]</code></pre>
+                </div>
+                <div class="card">
+                    <h4>🛁 Soak test</h4>
+                    <p>Carga media durante <strong>horas</strong>. Detecta memory leaks, fugas de conexiones, degradación.</p>
+                    <pre><code>stages: [
+    { duration: '5m',  target: 200 },
+    { duration: '8h',  target: 200 },
+    { duration: '10m', target: 0 }
+]</code></pre>
+                </div>
+                <div class="card">
+                    <h4>📊 Breakpoint test</h4>
+                    <p>Rampa lineal infinita hasta que falle. Útil para capacity planning.</p>
+                    <pre><code>executor: 'ramping-arrival-rate',
+stages: [{ duration: '2h', target: 10000 }]</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <section id="pruebas-estres">
+            <h2>⚡ Pruebas de estrés, spike y soak (ejemplos completos)</h2>
+            <h3>Stress test progresivo con umbrales realistas</h3>
+            <pre><code>import http from 'k6/http';
+import { check, sleep } from 'k6';
+
+export const options = {
+    stages: [
+        { duration: '2m', target: 200 },   // warm-up
+        { duration: '5m', target: 500 },   // carga sostenida
+        { duration: '2m', target: 1000 },  // intensificar
+        { duration: '5m', target: 1000 },  // sostener bajo estrés
+        { duration: '5m', target: 0 },     // degradar
+    ],
+    thresholds: {
+        // Bajo estrés es normal que algo falle - tolerancia ampliada
+        http_req_failed:   ['rate < 0.15'],
+        http_req_duration: ['p(95) < 2000', 'p(99) < 5000'],
+    },
+};
+
+export default function () {
+    const res = http.get('https://api.example.com/products?page=1');
+    check(res, { 'sirve algo': (r) => r.status < 500 });
+    sleep(Math.random() * 2);  // think time variable
+}</code></pre>
+
+            <h3>Spike test con recuperación</h3>
+            <pre><code>export const options = {
+    stages: [
+        { duration: '10s', target: 100 },    // baseline
+        { duration: '1m',  target: 100 },
+        { duration: '10s', target: 2000 },   // SPIKE
+        { duration: '3m',  target: 2000 },
+        { duration: '10s', target: 100 },    // recuperación
+        { duration: '3m',  target: 100 },    // ¿vuelve a la normalidad?
+        { duration: '10s', target: 0 },
+    ],
+};</code></pre>
+
+            <h3>Soak test de 8 horas (con guardarraíles)</h3>
+            <pre><code>export const options = {
+    stages: [
+        { duration: '5m',  target: 200 },
+        { duration: '8h',  target: 200 },
+        { duration: '10m', target: 0 },
+    ],
+    thresholds: {
+        // Si la latencia se degrada >50% sobre baseline, aborta
+        http_req_duration: [{ threshold: 'p(95) < 600', abortOnFail: true, delayAbortEval: '30m' }],
+    },
+    // No mantengas todas las muestras en memoria
+    discardResponseBodies: true,
+    summaryTrendStats: ['avg', 'min', 'med', 'max', 'p(90)', 'p(95)', 'p(99)'],
+};</code></pre>
+
+            <div class="warning">⚠️ Para tests largos (&gt;1h), añade <code>discardResponseBodies: true</code> para no acumular memoria, y usa <code>--out</code> en vez de mantener todas las muestras en RAM.</div>
+        </section>
+
+        <div class="section-header">━━━ Bloque 4 · Protocolos y testing avanzado ━━━</div>
+
+        <section id="api-rest-graphql">
+            <h2>🚀 Testing avanzado: REST, GraphQL y patrones</h2>
+            <p>k6 soporta nativamente REST con todos los verbos HTTP y GraphQL como POST con query. Aquí ejemplos completos de patrones reales.</p>
+
+            <h3>CRUD REST completo</h3>
+            <pre><code>import http from 'k6/http';
+import { check, group } from 'k6';
+
+const BASE = __ENV.BASE_URL || 'https://api.example.com';
+
+export default function () {
+    let creadoId;
+
+    group('CREATE - POST /products', () => {
+        const res = http.post(`${BASE}/products`,
+            JSON.stringify({ name: 'Producto k6', price: 100 }),
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+        check(res, { 'created 201': (r) => r.status === 201 });
+        creadoId = res.json('id');
+    });
+
+    group('READ - GET /products/:id', () => {
+        const res = http.get(`${BASE}/products/${creadoId}`);
+        check(res, { 'found 200': (r) => r.status === 200 });
+    });
+
+    group('UPDATE - PUT /products/:id', () => {
+        const res = http.put(`${BASE}/products/${creadoId}`,
+            JSON.stringify({ price: 120 }),
+            { headers: { 'Content-Type': 'application/json' } }
+        );
+        check(res, { 'updated 200': (r) => r.status === 200 });
+    });
+
+    group('DELETE - DELETE /products/:id', () => {
+        const res = http.del(`${BASE}/products/${creadoId}`);
+        check(res, { 'deleted 204': (r) => r.status === 204 });
+    });
+}</code></pre>
+
+            <h3>Batch requests (paralelo)</h3>
+            <pre><code>import http from 'k6/http';
+
+export default function () {
+    // 4 peticiones en paralelo desde el mismo VU
+    const responses = http.batch([
+        ['GET', 'https://api.example.com/users'],
+        ['GET', 'https://api.example.com/products'],
+        ['POST', 'https://api.example.com/cart', JSON.stringify({ id: 1 }),
+          { headers: { 'Content-Type': 'application/json' } }],
+        { method: 'GET', url: 'https://api.example.com/promos', tags: { name: 'promos' } },
+    ]);
+
+    responses.forEach((r, i) => check(r, { [`req ${i} OK`]: (res) => res.status < 400 }));
+}</code></pre>
+
+            <h3>GraphQL: query y mutation</h3>
+            <pre><code>import http from 'k6/http';
+import { check } from 'k6';
+
+const URL = 'https://countries.trevorblades.com/graphql';
+
+export default function () {
+    // Query
+    const queryPayload = JSON.stringify({
+        query: `query GetCountry($code: ID!) {
+            country(code: $code) { name capital currency languages { name } }
+        }`,
+        variables: { code: 'CL' },
+    });
+
+    const res = http.post(URL, queryPayload, {
+        headers: { 'Content-Type': 'application/json' },
+        tags: { name: 'gql_getCountry' },
+    });
+
+    check(res, {
+        'GraphQL 200':      (r) => r.status === 200,
+        'sin errores GQL':  (r) => !r.json('errors'),
+        'tiene data':       (r) => r.json('data.country.name') === 'Chile',
+    });
+
+    // Mutation
+    const mutation = JSON.stringify({
+        query: `mutation { createUser(name: "k6") { id } }`,
+    });
+    http.post(URL, mutation, { headers: { 'Content-Type': 'application/json' } });
+}</code></pre>
+
+            <h3>Cookies, redirects y sesiones</h3>
+            <pre><code>// Por defecto k6 mantiene cookies por VU (como un navegador)
+const jar = http.cookieJar();
+
+export default function () {
+    // Login: el servidor envía Set-Cookie y k6 lo guarda automáticamente
+    http.post('https://web.example.com/login', { user: 'x', pass: 'y' });
+
+    // Esta petición ya envía la cookie de sesión
+    const res = http.get('https://web.example.com/profile');
+
+    // Inspeccionar
+    console.log('Cookies actuales:', JSON.stringify(jar.cookiesForURL('https://web.example.com')));
+
+    // Forzar valor
+    jar.set('https://web.example.com', 'feature_flag', 'beta');
+
+    // Limpiar antes de logout
+    jar.clear('https://web.example.com');
+}
+
+// Para no seguir redirects:
+http.get(url, { redirects: 0 });</code></pre>
+
+            <h3>Subida de archivos (multipart)</h3>
+            <pre><code>import http from 'k6/http';
+
+const archivo = open('./avatar.png', 'b');  // binario
+
+export default function () {
+    const data = {
+        file: http.file(archivo, 'avatar.png', 'image/png'),
+        userId: '42',
+    };
+    http.post('https://api.example.com/upload', data);
+}</code></pre>
+        </section>
+
+        <section id="auth-refresh">
+            <h2>🔐 Autenticación y refresh token dinámico</h2>
+            <p>La autenticación es uno de los retos más comunes en testing de APIs reales. Aquí ejemplos para los flujos más usados.</p>
+
+            <h3>1. Basic Auth</h3>
+            <pre><code>const credentials = `${__ENV.USER}:${__ENV.PASS}`;
+const encoded = encoding.b64encode(credentials);
+http.get(URL, { headers: { Authorization: `Basic ${encoded}` } });
+
+// O directo en la URL
+http.get('https://user:pass@api.example.com/');</code></pre>
+
+            <h3>2. Bearer / JWT con login por VU en setup</h3>
+            <pre><code>export function setup() {
+    const res = http.post('https://api.example.com/auth/login', JSON.stringify({
+        username: __ENV.USERNAME,
+        password: __ENV.PASSWORD,
+    }), { headers: { 'Content-Type': 'application/json' } });
+    return { token: res.json('access_token') };
+}
+
+export default function (data) {
+    http.get('https://api.example.com/profile', {
+        headers: { Authorization: `Bearer ${data.token}` },
+    });
+}</code></pre>
+
+            <h3>3. OAuth2 Client Credentials</h3>
+            <pre><code>export function setup() {
+    const res = http.post('https://auth.example.com/oauth/token', {
+        grant_type:    'client_credentials',
+        client_id:     __ENV.CLIENT_ID,
+        client_secret: __ENV.CLIENT_SECRET,
+        scope:         'read:users write:orders',
+    });
+    return {
+        token:      res.json('access_token'),
+        expiresAt:  Date.now() + (res.json('expires_in') * 1000),
+    };
+}</code></pre>
+
+            <h3>4. Refresh token automático (dentro del VU)</h3>
+            <p>Cuando el token expira en mitad del test, hay que renovarlo. Estrategia: guardar en variable global por VU y refrescar al detectar 401:</p>
+            <pre><code>let cachedToken = null;
+let cachedExpiry = 0;
+
+function getValidToken() {
+    if (cachedToken && Date.now() < cachedExpiry - 30_000) return cachedToken;
+    // refrescar
+    const res = http.post('https://auth.example.com/refresh', JSON.stringify({
+        refresh_token: __ENV.REFRESH_TOKEN,
+    }), { headers: { 'Content-Type': 'application/json' }, tags: { name: 'refresh-token' } });
+    cachedToken  = res.json('access_token');
+    cachedExpiry = Date.now() + res.json('expires_in') * 1000;
+    return cachedToken;
+}
+
+export default function () {
+    let res = http.get('https://api.example.com/data', {
+        headers: { Authorization: `Bearer ${getValidToken()}` },
+    });
+    if (res.status === 401) {
+        cachedToken = null;
+        res = http.get('https://api.example.com/data', {
+            headers: { Authorization: `Bearer ${getValidToken()}` },
+        });
+    }
+}</code></pre>
+
+            <h3>5. Refresh token compartido vía servidor auxiliar</h3>
+            <p>Si tienes 1000 VUs y todos refrescan el token simultáneamente, saturarás al IdP. Solución: un sidecar Node.js que sirve un token siempre fresco.</p>
+
+            <div class="card">
+                <strong>Servidor auxiliar (Node.js):</strong>
+                <pre><code>// token-server.js
+import express from 'express';
+import fs from 'fs';
+const app = express();
+
+app.get('/token', (req, res) => {
+    const data = JSON.parse(fs.readFileSync('./token.json', 'utf8'));
+    res.json({ token: data.access_token });
+});
+
+// Renovar el token cada 4 minutos (antes de los 5 que dura)
+setInterval(async () => {
+    const newToken = await fetchTokenFromOAuthProvider();
+    fs.writeFileSync('./token.json', JSON.stringify({ access_token: newToken }));
+}, 4 * 60 * 1000);
+
+app.listen(4000);</code></pre>
+                <strong>Script k6 consumiendo token fresco:</strong>
+                <pre><code>function getToken() {
+    const res = http.get('http://localhost:4000/token');
+    return res.json('token');
+}
+
+export default function () {
+    const token = getToken();
+    http.get('https://api.segura.com/data', {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+}</code></pre>
+            </div>
+
+            <h3>6. mTLS (certificados cliente)</h3>
+            <pre><code>const cert = open('./client.crt');
+const key  = open('./client.key');
+
+export const options = {
+    tlsAuth: [{
+        domains:   ['api.segura.com'],
+        cert:      cert,
+        key:       key,
+    }],
+};</code></pre>
+
+            <h3>7. AWS SigV4 (firmar requests a AWS)</h3>
+            <pre><code>import { AWSConfig, SignatureV4 } from 'https://jslib.k6.io/aws/0.13.0/signature.js';
+
+const cfg = new AWSConfig({
+    region: 'us-east-1',
+    accessKeyId:     __ENV.AWS_KEY,
+    secretAccessKey: __ENV.AWS_SECRET,
+});
+
+export default function () {
+    const signer = new SignatureV4({ service: 's3', region: cfg.region, credentials: cfg });
+    const signed = signer.sign({
+        method:  'GET',
+        endpoint: 'https://mibucket.s3.amazonaws.com/archivo.json',
+    });
+    http.get(signed.url, { headers: signed.headers });
+}</code></pre>
+        </section>
+
+        <section id="grpc-websocket">
+            <h2>🌐 gRPC y WebSocket (protocolos nativos)</h2>
+
+            <h3>gRPC unario</h3>
+            <pre><code>import grpc from 'k6/net/grpc';
+import { check } from 'k6';
+
+const client = new grpc.Client();
+client.load(['./protos'], 'route_guide.proto');
+
+export default () => {
+    client.connect('localhost:50051', { plaintext: true });
+
+    const data = { latitude: 409146138, longitude: -746188764 };
+    const response = client.invoke('routeguide.RouteGuide/GetFeature', data);
+
+    check(response, {
+        'gRPC OK':  (r) => r && r.status === grpc.StatusOK,
+        'no vacío': (r) => r.message && r.message.name !== '',
+    });
+
+    client.close();
+};</code></pre>
+
+            <h3>gRPC streaming bidireccional</h3>
+            <pre><code>import grpc from 'k6/net/grpc';
+
+const client = new grpc.Client();
+client.load([], 'chat.proto');
+
+export default () => {
+    client.connect('localhost:50051');
+    const stream = new grpc.Stream(client, 'chat.ChatService/Conversation');
+
+    stream.on('data', (msg) => console.log('Recibido:', msg.text));
+    stream.on('error', (err) => console.error(err));
+    stream.on('end', () => console.log('Stream cerrado'));
+
+    stream.write({ text: 'Hola' });
+    stream.write({ text: '¿Estás ahí?' });
+    stream.end();
+};</code></pre>
+
+            <h3>WebSocket con eventos</h3>
+            <pre><code>import ws from 'k6/ws';
+import { check } from 'k6';
+
+export default function () {
+    const url = 'wss://echo.websocket.events';
+    const res = ws.connect(url, null, function (socket) {
+        socket.on('open', () => {
+            console.log('Conectado');
+            socket.send('Hola k6');
+            socket.setInterval(() => socket.send('ping'), 5000);  // ping cada 5s
+        });
+        socket.on('message', (data) => {
+            console.log('Mensaje:', data);
+            if (data === 'goodbye') socket.close();
+        });
+        socket.on('close', () => console.log('Cerrado'));
+        socket.on('error', (e) => console.error('Error WS:', e.error()));
+        socket.setTimeout(() => socket.close(), 30000);   // cierre forzado a los 30s
+    });
+
+    check(res, { 'WS conexión 101': (r) => r && r.status === 101 });
+}</code></pre>
+
+            <h3>WebSocket experimental con reconexión automática</h3>
+            <pre><code>import ws from 'k6/experimental/websockets';
+
+export default function () {
+    const socket = new ws.WebSocket('wss://echo.websocket.events', null,
+        { reconnect: { maxAttempts: 3, delay: 1000 } });
+    socket.addEventListener('open',    () => socket.send('Hola'));
+    socket.addEventListener('message', (e) => console.log(e.data));
+    socket.addEventListener('error',   (e) => console.error(e));
+}</code></pre>
+        </section>
+
+        <section id="soap-sql">
+            <h2>📡 SOAP, SQL y mensajería (xk6)</h2>
+
+            <h3>SOAP: enviar XML vía HTTP POST</h3>
+            <pre><code>import http from 'k6/http';
+
+const soapEnvelope = `&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"&gt;
+  &lt;soap:Body&gt;
+    &lt;GetPrice xmlns="http://example.com/products"&gt;
+      &lt;ProductID&gt;A-123&lt;/ProductID&gt;
+    &lt;/GetPrice&gt;
+  &lt;/soap:Body&gt;
+&lt;/soap:Envelope&gt;`;
+
+export default function () {
+    const res = http.post('https://ejemplo.com/services/Pricing', soapEnvelope, {
+        headers: {
+            'Content-Type': 'text/xml; charset=utf-8',
+            'SOAPAction':   '"http://example.com/products/GetPrice"',
+        },
+    });
+
+    // Para parsear, usa una librería como fast-xml-parser via jslib
+    check(res, {
+        'SOAP 200':   (r) => r.status === 200,
+        'tiene Price': (r) => r.body.includes('&lt;Price&gt;'),
+    });
+}</code></pre>
+
+            <h3>SQL con xk6-sql</h3>
+            <p>Permite cargar la base de datos directamente o validar consistencia post-test.</p>
+            <pre><code>// Compilar: xk6 build --with github.com/grafana/xk6-sql --with github.com/grafana/xk6-sql-driver-postgres
+import sql from 'k6/x/sql';
+import postgres from 'k6/x/sql/driver/postgres';
+
+const db = sql.open(postgres, 'postgres://user:pass@localhost/db?sslmode=disable');
+
+export function setup() {
+    db.exec('CREATE TABLE IF NOT EXISTS test_users (id SERIAL PRIMARY KEY, email TEXT)');
+}
+
+export default function () {
+    db.exec('INSERT INTO test_users (email) VALUES ($1)', `vu${__VU}-${__ITER}@k6.io`);
+    const rows = db.query('SELECT COUNT(*) AS total FROM test_users');
+    console.log('Total:', rows[0].total);
+}
+
+export function teardown() {
+    db.exec('DROP TABLE test_users');
+    db.close();
+}</code></pre>
+
+            <h3>Kafka con xk6-kafka</h3>
+            <pre><code>// Compilar: xk6 build --with github.com/mostafa/xk6-kafka
+import { Writer, Reader, Connection, SchemaRegistry } from 'k6/x/kafka';
+
+const brokers   = ['localhost:9092'];
+const topic     = 'k6-events';
+
+const writer = new Writer({ brokers, topic });
+const reader = new Reader({ brokers, topic, groupID: 'k6-group' });
+
+export default function () {
+    writer.produce({
+        messages: [
+            { key: `vu-${__VU}`, value: JSON.stringify({ event: 'test', ts: Date.now() }) },
+        ],
+    });
+
+    const messages = reader.consume({ limit: 10 });
+    console.log(`Consumidos: ${messages.length}`);
+}
+
+export function teardown() {
+    writer.close();
+    reader.close();
+}</code></pre>
+
+            <h3>Redis con k6/x/redis</h3>
+            <pre><code>import redis from 'k6/x/redis';
+
+const client = new redis.Client({ addrs: ['localhost:6379'] });
+
+export default async function () {
+    await client.set(`vu:${__VU}`, 'activo', 60);   // TTL 60s
+    const val = await client.get(`vu:${__VU}`);
+    console.log('Redis dijo:', val);
+}</code></pre>
+
+            <h3>MQTT (IoT) con xk6-mqtt</h3>
+            <pre><code>// Compilar: xk6 build --with github.com/pmalhaire/xk6-mqtt
+import mqtt from 'k6/x/mqtt';
+
+export default function () {
+    const client = new mqtt.Client(['tcp://broker.test:1883'], 'k6-client', '', '', 2000, '', 2000);
+    client.connect();
+    client.publish('sensors/temp', JSON.stringify({ value: 21.5, ts: Date.now() }), 0, false);
+    client.disconnect();
+}</code></pre>
+
+            <div class="tip">🔧 <strong>Cómo compilar un binario k6 con varias extensiones:</strong>
+            <pre><code>go install go.k6.io/xk6/cmd/xk6@latest
+xk6 build \
+  --with github.com/grafana/xk6-sql \
+  --with github.com/grafana/xk6-sql-driver-postgres \
+  --with github.com/mostafa/xk6-kafka \
+  --with github.com/grafana/xk6-disruptor
+
+# Esto genera ./k6 con todas las extensiones embebidas
+./k6 run script.js</code></pre>
+            </div>
+        </section>
+
+        <section id="browser-extension">
+            <h2>🌐 k6 Browser: pruebas de rendimiento real en frontend</h2>
+            <p>El módulo <code>k6/browser</code> (estable desde k6 1.0, antes <code>k6/experimental/browser</code>) automatiza navegadores Chromium reales para medir Web Vitals (LCP, FCP, CLS, FID/INP) y validar interacciones de UI.</p>
+
+            <h3>Setup</h3>
+            <pre><code># k6 1.0+ ya incluye browser nativamente, NO necesitas compilar
+# (en versiones antiguas: xk6 build --with github.com/grafana/xk6-browser)
+
+# Verificar que Chromium está disponible
+k6 run --quiet script-browser.js</code></pre>
+
+            <h3>Smoke browser test</h3>
+            <pre><code>import { browser } from 'k6/browser';
+import { check } from 'k6';
+
+export const options = {
+    scenarios: {
+        ui: {
+            executor: 'shared-iterations',
+            options: { browser: { type: 'chromium' } },
+        },
+    },
+    thresholds: {
+        browser_web_vital_lcp: ['p(95) < 2500'],
+        browser_web_vital_fcp: ['p(95) < 1800'],
+        browser_web_vital_cls: ['p(95) < 0.1'],
+    },
+};
+
+export default async function () {
+    const page = await browser.newPage();
+    try {
+        await page.goto('https://test.k6.io/');
+        await page.waitForSelector('h1');
+
+        const title = await page.title();
+        check(title, { 'título correcto': (t) => t.includes('test.k6.io') });
+
+        // Screenshot
+        await page.screenshot({ path: `screenshots/home-${__VU}-${__ITER}.png` });
+    } finally {
+        await page.close();
+    }
+}</code></pre>
+
+            <h3>Interacciones complejas: login, formularios, asserts visuales</h3>
+            <pre><code>import { browser } from 'k6/browser';
+import { check } from 'k6';
+
+export default async function () {
+    const page = await browser.newPage();
+    try {
+        await page.goto('https://test.k6.io/my_messages.php');
+
+        // Rellenar formulario
+        await page.locator('input[name="login"]').type('admin');
+        await page.locator('input[name="password"]').type('123');
+        await Promise.all([
+            page.locator('input[type="submit"]').click(),
+            page.waitForNavigation(),
+        ]);
+
+        // Verificar redirect
+        await check(page, {
+            'login OK': async (p) => (await p.locator('h2').textContent()) === 'Welcome, admin!',
+        });
+
+        // Hacer scroll para forzar lazy-load y medir CLS
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+        await page.waitForTimeout(1000);
+
+        // Métricas de performance
+        const perf = await page.evaluate(() => JSON.stringify(performance.getEntriesByType('navigation')));
+        console.log('Performance:', perf);
+    } finally {
+        await page.close();
+    }
+}</code></pre>
+
+            <div class="warning">⚠️ El modo browser consume <strong>mucho más</strong> recursos que el modo HTTP puro. Úsalo con pocos VUs (5-20) y prefiérelo para flujos críticos de UX, no para carga masiva.</div>
+            <div class="info">ℹ️ <strong>Compatibilidad con Playwright:</strong> k6 2.0 amplió la compatibilidad con la API de Playwright, lo que facilita migrar tests existentes. Más del 80% de los selectores y métodos comunes funcionan idénticamente.</div>
+        </section>
+
+        <section id="browser-hybrid">
+            <h2>🖥️ Pruebas híbridas: HTTP masivo + navegadores reales</h2>
+            <p>Patrón muy potente: combinar carga API alta con un puñado de browsers reales que validan que la UX no se degrada bajo presión.</p>
+            <pre><code>import http from 'k6/http';
+import { browser } from 'k6/browser';
+import { check } from 'k6';
+
+export const options = {
+    scenarios: {
+        // 90% del tráfico: API a 500 req/s
+        backend_load: {
+            executor: 'constant-arrival-rate',
+            rate: 500, timeUnit: '1s',
+            duration: '5m',
+            preAllocatedVUs: 100,
+            maxVUs: 300,
+            exec: 'apiLoad',
+        },
+        // 10%: navegadores reales validando UX
+        frontend_ux: {
+            executor: 'per-vu-iterations',
+            vus: 5, iterations: 20,
+            maxDuration: '5m',
+            options: { browser: { type: 'chromium' } },
+            exec: 'frontendCheck',
+        },
+    },
+    thresholds: {
+        // El frontend NO debería degradarse aunque el backend esté al límite
+        'browser_web_vital_lcp{scenario:frontend_ux}': ['p(95) < 3000'],
+        'http_req_duration{scenario:backend_load}':    ['p(95) < 1000'],
+    },
+};
+
+export function apiLoad() {
+    http.get(`${__ENV.BASE_URL}/api/products?page=${Math.floor(Math.random() * 50)}`);
+}
+
+export async function frontendCheck() {
+    const page = await browser.newPage();
+    try {
+        await page.goto(`${__ENV.BASE_URL}/products`);
+        await page.waitForSelector('.product-card');
+        check(await page.locator('.product-card').count(), {
+            'al menos 12 productos visibles': (n) => n >= 12,
+        });
+    } finally {
+        await page.close();
+    }
+}</code></pre>
+
+            <div class="card">
+                <strong>🎯 Por qué este patrón es valioso:</strong>
+                <ul>
+                    <li>Los tests puramente API no detectan problemas de renderizado, lazy-load, hidratación SSR.</li>
+                    <li>Los tests puramente browser no escalan para reproducir tráfico realista.</li>
+                    <li>El híbrido valida la <em>experiencia real</em> bajo el peor escenario.</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="section-header">━━━ Bloque 5 · Pro: integración y operación ━━━</div>
+
+        <section id="typescript-modules">
+            <h2>📘 TypeScript y modularización <span class="badge badge-new">k6 1.0+</span></h2>
+            <p>Desde k6 1.0, <strong>TypeScript es soportado nativamente</strong> sin necesidad de Webpack o Babel. Esto trae autocompletado en IDE y type-safety inmediata.</p>
+
+            <h3>Tu primer script en TypeScript</h3>
+            <pre><code>// test.ts
+import http, { type RefinedResponse } from 'k6/http';
+import { check, sleep } from 'k6';
+import { Options } from 'k6/options';
+
+export const options: Options = {
+    vus: 10,
+    duration: '30s',
+    thresholds: {
+        http_req_duration: ['p(95) < 500'],
+    },
+};
+
+interface Usuario {
+    id: number;
+    email: string;
+}
+
+export default function (): void {
+    const res: RefinedResponse&lt;'text'&gt; = http.get('https://reqres.in/api/users/2');
+    const usuario = res.json('data') as Usuario;
+
+    check(res, {
+        'status 200':   (r) => r.status === 200,
+        'id es número': () => typeof usuario.id === 'number',
+    });
+
+    sleep(1);
+}</code></pre>
+            <pre><code># Ejecutar directamente
+k6 run test.ts</code></pre>
+
+            <h3>Estructura modular profesional</h3>
+            <pre><code>proyecto/
+├── config/
+│   ├── options.ts        ← opciones por entorno
+│   └── thresholds.ts     ← SLOs
+├── helpers/
+│   ├── auth.ts           ← login, refresh
+│   ├── data.ts           ← SharedArrays
+│   └── metrics.ts        ← métricas personalizadas
+├── scenarios/
+│   ├── smoke.ts
+│   ├── load.ts
+│   ├── stress.ts
+│   └── soak.ts
+├── flows/
+│   ├── checkout.ts       ← flujo de negocio
+│   └── search.ts
+├── data/
+│   ├── users.csv
+│   └── products.json
+├── tsconfig.json
+└── package.json</code></pre>
+
+            <h3>Ejemplo de módulo reutilizable</h3>
+            <pre><code>// helpers/auth.ts
+import http from 'k6/http';
+
+let cachedToken: string | null = null;
+let cachedExpiry = 0;
+
+export function getToken(): string {
+    if (cachedToken && Date.now() < cachedExpiry - 30_000) return cachedToken;
+    const res = http.post(`${__ENV.AUTH_URL}/login`, JSON.stringify({
+        user: __ENV.USER, pass: __ENV.PASS,
+    }), { headers: { 'Content-Type': 'application/json' } });
+    cachedToken  = res.json('token') as string;
+    cachedExpiry = Date.now() + (res.json('expires_in') as number) * 1000;
+    return cachedToken;
+}
+
+// flows/checkout.ts
+import http from 'k6/http';
+import { check, group } from 'k6';
+import { getToken } from '../helpers/auth.ts';
+
+export function checkout(productId: number): void {
+    group('Checkout', () => {
+        const headers = { Authorization: `Bearer ${getToken()}` };
+        const res = http.post(`${__ENV.BASE_URL}/cart`,
+            JSON.stringify({ productId }), { headers });
+        check(res, { 'cart OK': (r) => r.status === 201 });
+    });
+}
+
+// scenarios/load.ts
+import { checkout } from '../flows/checkout.ts';
+export { options } from '../config/options.ts';
+
+export default function () {
+    checkout(Math.floor(Math.random() * 1000));
+}</code></pre>
+
+            <div class="tip">💡 <strong>tsconfig.json</strong> mínimo:
+            <pre><code>{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "ESNext",
+    "strict": true,
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["k6"]
+  }
+}</code></pre>
+            Y añade <code>@types/k6</code> con <code>npm install -D @types/k6</code> para autocompletado completo.
+            </div>
+        </section>
+
+        <section id="correlation-dynamic">
+            <h2>🔗 Correlación y datos dinámicos</h2>
+            <p>La <strong>correlación</strong> es extraer un valor de una respuesta para usarlo en la siguiente (p.ej. CSRF token, sessionId, IDs creados). Es uno de los pilares de cualquier test realista.</p>
+
+            <h3>1. Extraer de un body JSON</h3>
+            <pre><code>const res = http.post(BASE + '/products', JSON.stringify({ name: 'X' }));
+const productId = res.json('id');           // path simple
+const tags      = res.json('tags');         // array completo
+const nestedVal = res.json('meta.author.email');  // path con puntos</code></pre>
+
+            <h3>2. Extraer con jsonpath complejo (jslib)</h3>
+            <pre><code>import jsonpath from 'https://jslib.k6.io/jsonpath/1.0.2/index.js';
+
+const all = jsonpath.value(res.json(), '$..items[?(@.active==true)].id');</code></pre>
+
+            <h3>3. Extraer con regex de un HTML (cuando no hay API)</h3>
+            <pre><code>const res = http.get('https://web.example.com/login');
+const csrfMatch = res.body.match(/name="csrf_token" value="([^"]+)"/);
+if (csrfMatch) {
+    const csrf = csrfMatch[1];
+    http.post('https://web.example.com/login', {
+        username: 'admin', password: '123', csrf_token: csrf,
+    });
+}</code></pre>
+
+            <h3>4. Extraer con HTML parser (jslib/html-parser)</h3>
+            <pre><code>const doc = res.html();
+const csrf = doc.find('input[name="csrf_token"]').first().attr('value');
+const productIds = doc.find('.product-card').map((i, el) => el.attr('data-id')).toArray();</code></pre>
+
+            <h3>5. Generar datos dinámicos únicos</h3>
+            <pre><code>import { uuidv4, randomString, randomIntBetween } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
+
+export default function () {
+    const email   = `user-${uuidv4()}@k6.io`;
+    const apodo   = randomString(8);
+    const monto   = randomIntBetween(100, 5000);
+
+    http.post('/users', JSON.stringify({ email, apodo, monto }));
+}</code></pre>
+
+            <h3>6. Patrón "session prep" (precargar IDs antes del test)</h3>
+            <pre><code>// Si el flujo necesita 1000 productos existentes, créalos en setup
+export function setup() {
+    const ids = [];
+    for (let i = 0; i < 1000; i++) {
+        const res = http.post(BASE + '/products', JSON.stringify({ name: `P-${i}` }));
+        ids.push(res.json('id'));
+    }
+    return { productIds: ids };
+}
+
+export default function (data) {
+    const id = data.productIds[__VU * __ITER % data.productIds.length];
+    http.get(BASE + '/products/' + id);
+}</code></pre>
+        </section>
+
+        <section id="integracion-ci">
+            <h2>🤖 Integración continua (CI/CD)</h2>
+            <p>k6 está pensado para correr en pipelines. Aquí ejemplos completos para los 3 sistemas más usados.</p>
+
+            <h3>GitHub Actions: smoke + nightly stress</h3>
+            <pre><code># .github/workflows/k6-tests.yml
+name: k6 Performance Tests
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * *'   # cada noche a las 2am
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run smoke test
+        uses: grafana/setup-k6-action@v1
+      - run: k6 run --quiet tests/smoke.ts
+      - name: Subir summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-summary
+          path: summary.json
+
+  load:
+    needs: smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1
+      - name: Load test
+        env:
+          BASE_URL: ${{ secrets.STAGING_URL }}
+          AUTH_TOKEN: ${{ secrets.AUTH_TOKEN }}
+        run: |
+          k6 run \
+            --out json=load-results.json \
+            --summary-export=load-summary.json \
+            tests/load.ts
+      - name: Comentar PR con resultados
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const s = JSON.parse(fs.readFileSync('load-summary.json'));
+            const p95 = s.metrics.http_req_duration['p(95)'].toFixed(1);
+            const errs = (s.metrics.http_req_failed.rate * 100).toFixed(2);
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner, repo: context.repo.repo,
+              body: `📊 **Load test**\n- p95: ${p95}ms\n- Errores: ${errs}%`
+            });
+
+  nightly-stress:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: grafana/setup-k6-action@v1
+      - run: k6 run tests/stress.ts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: stress-results, path: '*.json' }</code></pre>
+
+            <h3>GitLab CI</h3>
+            <pre><code># .gitlab-ci.yml
+stages: [test, perf]
+
+k6:smoke:
+  stage: perf
+  image:
+    name: grafana/k6:latest
+    entrypoint: ['']
+  script:
+    - k6 run --quiet tests/smoke.js
+  artifacts:
+    when: always
+    paths: [summary.json]
+    reports:
+      junit: junit.xml
+
+k6:load:
+  stage: perf
+  needs: ['k6:smoke']
+  image: { name: grafana/k6:latest, entrypoint: [''] }
+  variables:
+    BASE_URL: $STAGING_URL
+  script:
+    - k6 run --out json=results.json tests/load.js
+  artifacts:
+    paths: [results.json]
+  only:
+    - merge_requests
+    - main</code></pre>
+
+            <h3>Jenkins (declarative pipeline)</h3>
+            <pre><code>pipeline {
+    agent any
+    triggers { cron('H 2 * * *') }
+    environment {
+        BASE_URL    = "https://api.staging.example.com"
+        K6_CLOUD_TOKEN = credentials('k6-cloud-token')
+    }
+    stages {
+        stage('Smoke') {
+            steps {
+                sh 'docker run --rm -v $WORKSPACE:/tests grafana/k6:latest run /tests/smoke.js'
+            }
+        }
+        stage('Load') {
+            steps {
+                sh '''
+                docker run --rm \
+                  -v $WORKSPACE:/tests \
+                  -e BASE_URL \
+                  grafana/k6:latest run \
+                  --out json=/tests/results.json \
+                  /tests/load.js
+                '''
+            }
+            post {
+                always { archiveArtifacts 'results.json,summary.json' }
+            }
+        }
+        stage('Stress nocturno') {
+            when { triggeredBy 'TimerTrigger' }
+            steps {
+                sh 'docker run --rm -v $WORKSPACE:/tests grafana/k6:latest cloud run /tests/stress.js'
+            }
+        }
+    }
+    post {
+        failure {
+            slackSend channel: '#perf', message: "Build ${env.BUILD_NUMBER} falló en k6"
+        }
+    }
+}</code></pre>
+
+            <h3>Generar JUnit XML (k6-jslib-junit)</h3>
+            <pre><code>import { junit } from 'https://jslib.k6.io/k6-junit/0.1.0/index.js';
+
+export function handleSummary(data) {
+    return {
+        'junit.xml': junit(data),
+        'stdout':    textSummary(data, { indent: ' ', enableColors: true }),
+    };
+}</code></pre>
+            <div class="tip">🕒 <strong>Patrón ganador en CI:</strong> ejecuta smoke en cada PR (rápido, baratísimo), load en merge a main, stress y soak en pipeline nocturno. Así detectas regresiones pronto sin gastar minutos de CI.</div>
+        </section>
+
+        <section id="resultados-reportes">
+            <h2>📑 Análisis de resultados, exportación y dashboards</h2>
+
+            <h3>Outputs soportados nativamente</h3>
+            <table>
+                <tr><th>Output</th><th>Comando</th><th>Uso</th></tr>
+                <tr><td>JSON</td><td><code>--out json=raw.json</code></td><td>Análisis offline detallado</td></tr>
+                <tr><td>CSV</td><td><code>--out csv=summary.csv</code></td><td>Excel, scripting</td></tr>
+                <tr><td>Summary export</td><td><code>--summary-export=s.json</code></td><td>Solo el resumen final</td></tr>
+                <tr><td>InfluxDB</td><td><code>--out influxdb=http://...</code></td><td>Dashboards Grafana legacy</td></tr>
+                <tr><td>Prometheus RW</td><td><code>--out experimental-prometheus-rw</code></td><td>Stack moderno (Mimir, Cortex)</td></tr>
+                <tr><td>Grafana Cloud</td><td><code>k6 cloud run</code></td><td>SaaS con dashboards out-of-the-box</td></tr>
+                <tr><td>OpenTelemetry</td><td><code>--out experimental-opentelemetry</code></td><td>Stack OTel completo</td></tr>
+                <tr><td>StatsD</td><td><code>--out statsd</code></td><td>Datadog, NewRelic</td></tr>
+            </table>
+
+            <h3>handleSummary: reporte HTML personalizado</h3>
+            <p>k6 te permite controlar totalmente cómo se genera el resumen final. Devuelve un objeto donde la clave es la ruta y el valor el contenido:</p>
+            <pre><code>import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
+import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js';
+
+export function handleSummary(data) {
+    return {
+        'reporte.html':  htmlReport(data),
+        'summary.json':  JSON.stringify(data, null, 2),
+        'stdout':        textSummary(data, { indent: ' ', enableColors: true }),
+    };
+}</code></pre>
+
+            <h3>Análisis offline con jq</h3>
+            <pre><code># p95 de cada endpoint a partir del JSON granular
+cat raw.json | jq -s '
+  map(select(.type == "Point" and .metric == "http_req_duration"))
+  | group_by(.data.tags.name)
+  | map({ endpoint: .[0].data.tags.name,
+          p95: (map(.data.value) | sort | .[length * 95 / 100 | floor]) })'
+
+# Conteo de errores por status
+cat raw.json | jq -s '
+  map(select(.metric == "http_reqs"))
+  | group_by(.data.tags.status)
+  | map({ status: .[0].data.tags.status, count: length })'</code></pre>
+
+            <h3>Exportar a InfluxDB + Grafana (stack clásico)</h3>
+            <pre><code># 1. Levantar el stack
+docker-compose up -d influxdb grafana
+
+# 2. Ejecutar k6 con output InfluxDB
+K6_INFLUXDB_ORGANIZATION=k6 \
+K6_INFLUXDB_BUCKET=k6 \
+K6_INFLUXDB_TOKEN=mi-token \
+k6 run --out output-influxdb=http://localhost:8086 script.js
+
+# 3. Importar el dashboard oficial: https://grafana.com/grafana/dashboards/2587</code></pre>
+        </section>
+
+        <section id="grafana-cloud">
+            <h2>☁️ Grafana Cloud k6</h2>
+            <p>Grafana Cloud k6 (sucesor de k6 Cloud) ofrece ejecución distribuida, dashboards listos, alertas y comparación de runs.</p>
+            <pre><code># 1. Login (una vez)
+k6 cloud login --token TU_TOKEN
+
+# 2. Ejecutar en la nube (los VUs corren en infraestructura de Grafana)
+k6 cloud run script.js
+
+# 3. Streaming de resultados a la nube pero ejecutando local
+k6 run --out cloud script.js</code></pre>
+
+            <h3>Configuración avanzada en el script</h3>
+            <pre><code>export const options = {
+    cloud: {
+        name:       'API Load Test - Release 2.1',
+        projectID:  3456789,
+        distribution: {
+            // Reparte VUs entre regiones (test global)
+            'amazon:us:ashburn':    { loadZone: 'amazon:us:ashburn',    percent: 50 },
+            'amazon:de:frankfurt':  { loadZone: 'amazon:de:frankfurt',  percent: 30 },
+            'amazon:jp:tokyo':      { loadZone: 'amazon:jp:tokyo',      percent: 20 },
+        },
+    },
+};</code></pre>
+            <div class="info">ℹ️ Grafana Cloud k6 tiene un plan free generoso (500 VU-horas/mes) ideal para empezar. Para producción, los planes pagos añaden retención más larga y alertas avanzadas.</div>
+        </section>
+
+        <section id="observabilidad">
+            <h2>🔭 Observabilidad y trazas distribuidas</h2>
+            <p>Más allá de las métricas, k6 puede propagar contexto de trazas (W3C Trace Context) para correlacionar requests con tus dashboards de APM (Datadog, New Relic, Tempo, Jaeger).</p>
+
+            <h3>Propagar trace_id desde k6</h3>
+            <pre><code>import http from 'k6/http';
+import tracing from 'k6/experimental/tracing';
+
+// Habilitar inyección automática de headers W3C trace
+tracing.instrumentHTTP({
+    propagator: 'w3c',
+});
+
+export default function () {
+    // Cada request lleva traceparent: 00-&lt;traceId&gt;-&lt;spanId&gt;-01
+    http.get('https://api.example.com/users');
+}</code></pre>
+
+            <h3>Output OpenTelemetry</h3>
+            <pre><code># Enviar métricas k6 directamente a un collector OTel
+K6_OTEL_EXPORTER_PROTOCOL=grpc \
+K6_OTEL_GRPC_EXPORTER_ENDPOINT=otel-collector:4317 \
+k6 run --out experimental-opentelemetry script.js</code></pre>
+
+            <div class="card">
+                <strong>🎯 Patrón "test trazable":</strong> al ejecutar k6 con tracing habilitado, cada request lleva un trace_id que viaja a tus microservicios. Después puedes en Grafana correlacionar un p99 alto en k6 con el span exacto que causó el cuello de botella en tu backend. Esto cambia radicalmente el tiempo de diagnóstico.
+            </div>
+        </section>
+
+        <div class="section-header">━━━ Bloque 6 · Experto ━━━</div>
+
+        <section id="xk6-extensiones">
+            <h2>🧩 Extensiones xk6 más útiles</h2>
+            <p>xk6 te permite construir tu propio binario k6 con módulos personalizados escritos en Go. Hay decenas de extensiones oficiales y de la comunidad.</p>
+
+            <table>
+                <tr><th>Extensión</th><th>Para qué sirve</th></tr>
+                <tr><td><code>xk6-sql</code></td><td>Acceso a PostgreSQL, MySQL, SQL Server, SQLite, etc.</td></tr>
+                <tr><td><code>xk6-kafka</code></td><td>Producir/consumir mensajes Kafka</td></tr>
+                <tr><td><code>xk6-disruptor</code></td><td>Chaos engineering en K8s (inyectar latencia, errores)</td></tr>
+                <tr><td><code>xk6-redis</code></td><td>Cliente Redis (también como <code>k6/x/redis</code>)</td></tr>
+                <tr><td><code>xk6-mqtt</code></td><td>Pruebas IoT con MQTT</td></tr>
+                <tr><td><code>xk6-amqp</code></td><td>RabbitMQ y otras colas AMQP</td></tr>
+                <tr><td><code>xk6-crypto</code></td><td>Algoritmos criptográficos extendidos (HMAC-SHA512, etc.)</td></tr>
+                <tr><td><code>xk6-counter</code></td><td>Contador global atómico (data-driven sin colisiones)</td></tr>
+                <tr><td><code>xk6-faker</code></td><td>Generación de datos sintéticos realistas</td></tr>
+                <tr><td><code>xk6-output-prometheus-remote</code></td><td>Push de métricas a Prometheus en tiempo real</td></tr>
+                <tr><td><code>xk6-output-influxdb</code></td><td>Output a InfluxDB v2</td></tr>
+                <tr><td><code>xk6-tracetest</code></td><td>Aserciones sobre spans de trace</td></tr>
+                <tr><td><code>xk6-dashboard</code></td><td>Dashboard HTML auto-generado en vivo</td></tr>
+            </table>
+
+            <h3>Compilar tu binario personalizado</h3>
+            <pre><code># Instalar xk6 una sola vez
+go install go.k6.io/xk6/cmd/xk6@latest
+
+# Compilar con varias extensiones
+xk6 build \
+    --with github.com/grafana/xk6-sql \
+    --with github.com/grafana/xk6-sql-driver-postgres \
+    --with github.com/mostafa/xk6-kafka \
+    --with github.com/grafana/xk6-disruptor \
+    --with github.com/szkiba/xk6-faker
+
+# El binario ./k6 ya tiene todas las extensiones embebidas
+./k6 run script.js</code></pre>
+
+            <h3>xk6-dashboard: dashboard HTML en vivo</h3>
+            <pre><code>xk6 build --with github.com/grafana/xk6-dashboard
+./k6 run --out web-dashboard=port=5665 script.js
+# Abrir http://localhost:5665 — métricas en tiempo real sin Grafana</code></pre>
+
+            <div class="info">ℹ️ Desde k6 1.1, el binario detecta imports <code>k6/x/*</code> en tu script y descarga la extensión automáticamente al compilar. Esto se llama <em>auto-extension-resolution</em>.</div>
+        </section>
+
+        <section id="chaos-engineering">
+            <h2>💣 Chaos engineering con xk6-disruptor</h2>
+            <p><strong>xk6-disruptor</strong> permite inyectar fallas en servicios Kubernetes desde tus scripts k6: añadir latencia, devolver errores HTTP, matar pods. Combinado con un test de carga, valida la <em>resiliencia</em> real de tu sistema.</p>
+
+            <h3>Caso: añadir 500ms de latencia a un servicio durante 30s</h3>
+            <pre><code>import http from 'k6/http';
+import { ServiceDisruptor } from 'k6/x/disruptor';
+
+export const options = {
+    scenarios: {
+        // Genera tráfico normal
+        load: {
+            executor: 'constant-arrival-rate',
+            rate: 100, timeUnit: '1s',
+            duration: '2m', preAllocatedVUs: 50,
+            exec: 'normalLoad',
+        },
+        // En paralelo, inyecta fallas tras 30s
+        chaos: {
+            executor: 'shared-iterations',
+            iterations: 1, vus: 1,
+            startTime: '30s',
+            exec: 'injectFault',
+        },
+    },
+    thresholds: {
+        // El SLO debe mantenerse incluso bajo caos
+        http_req_duration: ['p(95) < 1500'],
+        http_req_failed:   ['rate < 0.10'],
+    },
+};
+
+export function normalLoad() {
+    http.get('http://api-service.default.svc.cluster.local/users');
+}
+
+export function injectFault() {
+    const disruptor = new ServiceDisruptor('api-service', 'default');
+    disruptor.injectHTTPFaults(
+        {
+            averageDelay: '500ms',     // +500ms a todas las requests
+            errorRate:    0.1,         // 10% devuelve error
+            errorCode:    503,
+        },
+        '30s'    // duración de la inyección
+    );
+}</code></pre>
+
+            <h3>Matar pods aleatoriamente</h3>
+            <pre><code>import { PodDisruptor } from 'k6/x/disruptor';
+
+export function chaos() {
+    const pd = new PodDisruptor({ namespace: 'default',
+                                  selector: { labels: { app: 'api' } } });
+    pd.terminatePods({ count: 1 });   // mata 1 pod
+    // o por proporción
+    pd.terminatePods({ percentage: 50 });
+}</code></pre>
+            <div class="warning">⚠️ Disruptor solo funciona en entornos Kubernetes con permisos. Para inyectar fallas fuera de K8s, prefiere herramientas como Toxiproxy o Pumba.</div>
+        </section>
+
+        <section id="ai-assisted">
+            <h2>🤖 AI-assisted testing <span class="badge badge-new">k6 2.0</span></h2>
+            <p>k6 2.0 introdujo workflows asistidos por IA para acelerar la creación y mantenimiento de tests. La idea es que la IA escribe el primer borrador del script y un humano lo refina.</p>
+
+            <h3>k6 x agent: generación de scripts a partir de OpenAPI</h3>
+            <pre><code># Generar un script a partir de un OpenAPI spec
+k6 x agent init --openapi https://api.example.com/openapi.json \
+                --output tests/api-test.ts \
+                --scenarios "smoke,load,stress"
+
+# Convertir un test de Playwright/Postman a k6
+k6 x agent convert --from playwright --in tests/login.spec.ts \
+                   --out tests/login.k6.ts</code></pre>
+
+            <h3>Generación con prompts</h3>
+            <pre><code># Pedirle a la IA un test específico
+k6 x agent generate \
+  --prompt "Test de carga para un e-commerce: 100 usuarios buscando, 20 añadiendo al carrito y 5 completando checkout. Use SharedArray para los productos." \
+  --output tests/ecommerce.ts</code></pre>
+
+            <h3>Análisis automático de resultados</h3>
+            <pre><code># Ejecutar y dejar que la IA explique los hallazgos
+k6 run --out json=results.json tests/load.ts
+k6 x agent analyze --input results.json --baseline baselines/last-good.json
+# → "El p95 aumentó 23% vs baseline. El endpoint /search es el principal causante (+45ms)."</code></pre>
+
+            <div class="info">ℹ️ Las capacidades de AI-assisted están en evolución activa. Combínalas con revisión humana: usa los scripts generados como punto de partida, no como producto final.</div>
+        </section>
+
+        <section id="mejores-practicas">
+            <h2>🏆 Mejores prácticas y antipatrones a evitar</h2>
+
+            <h3>✅ Hacer (Do's)</h3>
+            <ul>
+                <li>Usa <code>SharedArray</code> para datasets grandes — una sola copia en memoria.</li>
+                <li>Mantén los scripts <strong>idempotentes</strong>: que correr el test dos veces no rompa nada.</li>
+                <li>Define thresholds basados en <strong>SLOs reales</strong> (ej: p95 latencia &lt; 300ms).</li>
+                <li>Parametriza por ambiente con <code>__ENV</code>. Nunca hardcodees URLs ni credenciales.</li>
+                <li>Usa <code>group()</code> para agrupar flujos lógicos y obtener métricas separadas.</li>
+                <li>Inyecta <code>sleep()</code> realistas (think time) — no es throughput máximo lo que mides en load tests.</li>
+                <li>Tagea peticiones para poder filtrar métricas (<code>{ tags: { endpoint: 'login' } }</code>).</li>
+                <li>Modulariza: separa configuración, helpers, flujos de negocio.</li>
+                <li>Usa <code>__VU</code> + <code>__ITER</code> para variabilidad <strong>determinista</strong> (reproducible).</li>
+                <li>Versiona tus scripts en Git junto al código de la aplicación.</li>
+                <li>Empieza con smoke, luego load, luego stress, en pipelines separados.</li>
+            </ul>
+
+            <h3>❌ Evitar (Don'ts)</h3>
+            <ul>
+                <li>No uses <code>Math.random()</code> sin control — datos no reproducibles entre runs.</li>
+                <li>No proceses JSON enormes o cálculos pesados dentro de <code>default()</code> — sesga las métricas.</li>
+                <li>No lances pruebas de carga contra <strong>producción</strong> sin acuerdo del equipo.</li>
+                <li>No corras contra entornos compartidos sin coordinación.</li>
+                <li>No abuses de <code>console.log</code> en producción del test — degrada el rendimiento.</li>
+                <li>No mezcles autenticación con lógica de negocio en el mismo archivo.</li>
+                <li>No olvides el <code>teardown</code> que limpia datos creados.</li>
+                <li>No infieras conclusiones de un solo run — siempre repite y compara.</li>
+                <li>No ignores <code>http_req_blocked</code>: si es alto, tu test está limitado por el pool de conexiones, no por el servidor.</li>
+            </ul>
+
+            <div class="card">
+                <strong>🎯 Script profesional completo (referencia):</strong>
+                <pre><code>import http from 'k6/http';
+import { check, sleep, group } from 'k6';
+import { SharedArray } from 'k6/data';
+import { Rate, Trend } from 'k6/metrics';
+import { uuidv4, randomItem } from 'https://jslib.k6.io/k6-utils/1.4.0/index.js';
+
+// ── Métricas custom ───────────────────────────────────────
+const errorRate    = new Rate('error_rate');
+const customTrend  = new Trend('checkout_total', true);
+
+// ── Data en memoria compartida ────────────────────────────
+const productos = new SharedArray('productos', () =>
+    JSON.parse(open('./data/productos.json'))
+);
+
+// ── Configuración ─────────────────────────────────────────
+export const options = {
+    scenarios: {
+        load: {
+            executor: 'ramping-vus',
+            startVUs: 0,
+            stages: [
+                { duration: '1m', target: 20 },
+                { duration: '3m', target: 20 },
+                { duration: '30s', target: 0 },
+            ],
+            exec: 'flowCheckout',
+            tags: { test_type: 'load' },
+        },
+    },
+    thresholds: {
+        error_rate:            ['rate < 0.05'],
+        checkout_total:        ['p(95) < 800'],
+        'http_req_duration{endpoint:checkout}': ['p(95) < 600'],
+        'group_duration{group:::Checkout flow}': ['p(95) < 1500'],
+    },
+};
+
+// ── Setup global ──────────────────────────────────────────
+export function setup() {
+    const res = http.post(`${__ENV.BASE_URL}/auth/login`, JSON.stringify({
+        user: __ENV.USER,  pass: __ENV.PASS,
+    }), { headers: { 'Content-Type': 'application/json' } });
+    return { token: res.json('token') };
+}
+
+// ── Flujo principal ───────────────────────────────────────
+export function flowCheckout(data) {
+    const headers = {
+        Authorization: `Bearer ${data.token}`,
+        'X-Request-Id': uuidv4(),
+        'Content-Type': 'application/json',
+    };
+
+    group('Checkout flow', () => {
+        let res;
+        group('Add to cart', () => {
+            const producto = randomItem(productos);
+            res = http.post(`${__ENV.BASE_URL}/cart`,
+                JSON.stringify({ productId: producto.id, qty: 1 }),
+                { headers, tags: { endpoint: 'cart' } });
+            check(res, { 'cart 201': (r) => r.status === 201 });
+            errorRate.add(res.status !== 201);
+        });
+
+        const start = Date.now();
+        group('Checkout', () => {
+            res = http.post(`${__ENV.BASE_URL}/checkout`,
+                JSON.stringify({ payment: 'card' }),
+                { headers, tags: { endpoint: 'checkout' } });
+            check(res, { 'checkout 200': (r) => r.status === 200 });
+            errorRate.add(res.status !== 200);
+        });
+        customTrend.add(Date.now() - start);
+    });
+
+    sleep(Math.random() * 3 + 1);   // think time 1-4s
+}
+
+export function teardown(data) {
+    console.log('Test completado, limpiando con token:', data.token.slice(0, 10) + '...');
+}</code></pre>
+            </div>
+        </section>
+
+        <section id="patrones-arquitectura">
+            <h2>🏛️ Patrones y arquitectura de proyecto</h2>
+            <p>A medida que tu suite de tests crece, necesitas estructura. Aquí los patrones probados en proyectos reales:</p>
+
+            <h3>1. Estructura recomendada (mediana/grande)</h3>
+            <pre><code>perf-tests/
+├── README.md
+├── package.json                ← devDeps: @types/k6, eslint, prettier
+├── tsconfig.json
+├── .env.example                ← variables que necesita el test
+├── config/
+│   ├── environments.ts         ← URLs por entorno (dev/staging/prod)
+│   ├── thresholds.ts           ← SLOs por escenario
+│   └── stages.ts               ← rampas reutilizables
+├── helpers/
+│   ├── auth.ts
+│   ├── data.ts                 ← SharedArrays centralizados
+│   ├── metrics.ts              ← métricas custom comunes
+│   ├── http-client.ts          ← wrapper con retries, headers default
+│   └── reporter.ts             ← handleSummary unificado
+├── flows/                       ← flujos de negocio reutilizables
+│   ├── login.ts
+│   ├── search.ts
+│   ├── checkout.ts
+│   └── browse.ts
+├── tests/                       ← scripts ejecutables (uno por tipo)
+│   ├── smoke.ts
+│   ├── load.ts
+│   ├── stress.ts
+│   ├── spike.ts
+│   ├── soak.ts
+│   └── browser.ts
+├── data/
+│   ├── users.csv
+│   ├── products.json
+│   └── README.md               ← cómo regenerar la data
+└── reports/                    ← .gitignored, salida de runs
+    └── .gitkeep</code></pre>
+
+            <h3>2. Configuración por entorno</h3>
+            <pre><code>// config/environments.ts
+export const ENVIRONMENTS = {
+    dev:     { BASE_URL: 'https://dev.api.example.com',     vusMultiplier: 0.1 },
+    staging: { BASE_URL: 'https://staging.api.example.com', vusMultiplier: 0.5 },
+    prod:    { BASE_URL: 'https://api.example.com',         vusMultiplier: 1.0 },
+};
+
+export function envConfig() {
+    const env = __ENV.K6_ENV || 'staging';
+    if (!ENVIRONMENTS[env]) throw new Error(`Entorno desconocido: ${env}`);
+    return ENVIRONMENTS[env];
+}
+
+// uso:  K6_ENV=staging k6 run tests/load.ts</code></pre>
+
+            <h3>3. HTTP client con retries y observabilidad</h3>
+            <pre><code>// helpers/http-client.ts
+import http from 'k6/http';
+
+const DEFAULT_HEADERS = { 'Content-Type': 'application/json', 'X-Client': 'k6-tests' };
+
+export function request(method, url, body, opts = {}) {
+    const params = {
+        headers: { ...DEFAULT_HEADERS, ...(opts.headers || {}) },
+        tags:    opts.tags || {},
+        timeout: opts.timeout || '30s',
+    };
+    let res, attempt = 0;
+    const maxRetries = opts.retries || 0;
+    do {
+        res = http.request(method, url, body, params);
+        if (res.status < 500 || attempt >= maxRetries) break;
+        attempt++;
+    } while (true);
+    return res;
+}</code></pre>
+
+            <h3>4. handleSummary unificado</h3>
+            <pre><code>// helpers/reporter.ts
+import { textSummary } from 'https://jslib.k6.io/k6-summary/0.0.2/index.js';
+import { htmlReport } from 'https://raw.githubusercontent.com/benc-uk/k6-reporter/main/dist/bundle.js';
+
+export function handleSummary(data) {
+    const env = __ENV.K6_ENV || 'unknown';
+    const timestamp = new Date().toISOString().split('T')[0];
+    return {
+        [`reports/summary-${env}-${timestamp}.html`]: htmlReport(data),
+        [`reports/summary-${env}-${timestamp}.json`]: JSON.stringify(data),
+        stdout: textSummary(data, { indent: '  ', enableColors: true }),
+    };
+}
+
+// En tests/load.ts
+export { handleSummary } from '../helpers/reporter.ts';</code></pre>
+
+            <h3>5. ESLint para mantener calidad</h3>
+            <pre><code>// .eslintrc.json
+{
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "no-console": ["warn", { "allow": ["error", "warn"] }],
+    "@typescript-eslint/no-explicit-any": "warn"
+  },
+  "globals": { "__VU": "readonly", "__ITER": "readonly", "__ENV": "readonly" }
+}</code></pre>
+        </section>
+
+        <section id="troubleshooting">
+            <h2>🩺 Troubleshooting y debugging</h2>
+
+            <h3>Síntomas y soluciones frecuentes</h3>
+            <table>
+                <tr><th>Síntoma</th><th>Causa probable</th><th>Solución</th></tr>
+                <tr><td><code>http_req_blocked</code> muy alto</td><td>Saturación del pool de conexiones</td><td>Aumentar <code>maxRedirects</code>, revisar keep-alive, escalar máquina cliente</td></tr>
+                <tr><td>Latencia crece con #VUs en el <em>cliente</em></td><td>k6 saturado, no el servidor</td><td>Distribuir con k6-operator o Grafana Cloud (múltiples nodos)</td></tr>
+                <tr><td>"open() can only be called from init"</td><td>Llamas open() en default</td><td>Mover open() al scope global del módulo</td></tr>
+                <tr><td>"Error: undefined is not an object" en JSON</td><td>El body no es JSON o tiene errores</td><td>Validar con <code>r.headers['Content-Type']</code> y try/catch</td></tr>
+                <tr><td>Thresholds nunca pasan</td><td>Stages muy cortos (no calentaste)</td><td>Añadir warm-up de 1-2 minutos antes de medir</td></tr>
+                <tr><td>VUs crece pero throughput se estanca</td><td>Cuello en la red o en el servidor</td><td>Usar arrival-rate, no VUs; comprobar saturación remota</td></tr>
+                <tr><td>EOF / connection refused intermitente</td><td>Servidor cierra keep-alive; firewall; rate-limit</td><td>Reducir VUs, comprobar logs server, añadir reintentos</td></tr>
+                <tr><td>Memory leak del proceso k6</td><td>Mantienes muestras en RAM</td><td>Usar <code>--out</code> en vez de mantenerlas; <code>discardResponseBodies: true</code></td></tr>
+                <tr><td>Browser tests muy lentos</td><td>Chromium consume mucho</td><td>Reducir VUs a 1-5, usar shared-iterations</td></tr>
+                <tr><td>Tags vacíos en métricas</td><td>Los aplicaste mal (en options en vez de en la request)</td><td>Pasar tags en el segundo argumento de http.get/post</td></tr>
+            </table>
+
+            <h3>Comandos de debugging útiles</h3>
+            <pre><code># Ver TODAS las requests/respuestas (¡muy verboso!)
+k6 run --http-debug=full script.js 2>&1 | head -200
+
+# Solo headers de request/response
+k6 run --http-debug script.js
+
+# Activar logging detallado
+k6 run --verbose script.js
+
+# Probar el script sin lanzar el test (valida sintaxis y opciones)
+k6 inspect script.js
+
+# Forzar exit code 0 incluso con thresholds fallidos (para CI exploratorio)
+k6 run script.js; echo "Exit code: $?"
+
+# Comparar dos runs
+diff <(jq '.metrics.http_req_duration' s1.json) <(jq '.metrics.http_req_duration' s2.json)</code></pre>
+
+            <h3>Cuándo el problema es del test, no de la app</h3>
+            <div class="info">
+                <strong>Heurísticas:</strong>
+                <ul>
+                    <li>Si <code>http_req_waiting</code> es <em>bajo</em> pero <code>http_req_duration</code> es alto → red o cliente saturado, NO el servidor.</li>
+                    <li>Si pones <code>--vus 1 --duration 30s</code> y todavía hay errores → el problema NO es de carga.</li>
+                    <li>Si los errores aparecen exactamente cuando arranca el spike, mira en logs del balanceador.</li>
+                    <li>Si la CPU del cliente k6 está al 100% → necesitas distribuir (k6-operator o cloud).</li>
+                    <li>Si el throughput tope no escala con VUs → estás en <em>VU-bound</em>; cambia a <code>arrival-rate</code>.</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="glosario">
+            <h2>📖 Glosario</h2>
+            <table>
+                <tr><th>Término</th><th>Definición</th></tr>
+                <tr><td><strong>VU</strong></td><td>Virtual User. Un usuario simulado por k6. Corre en una goroutine con su propia VM JS.</td></tr>
+                <tr><td><strong>Iteración</strong></td><td>Una ejecución completa de la función <code>default</code>.</td></tr>
+                <tr><td><strong>Executor</strong></td><td>Estrategia que decide cómo se ejecutan VUs e iteraciones (constant-vus, ramping-vus, arrival-rate...).</td></tr>
+                <tr><td><strong>Stage</strong></td><td>Una fase de la rampa: duración + target (VUs o tasa).</td></tr>
+                <tr><td><strong>Threshold</strong></td><td>Umbral global sobre una métrica que define éxito/fallo del test (afecta exit code).</td></tr>
+                <tr><td><strong>Check</strong></td><td>Aserción por iteración que NO detiene el test pero se reporta como rate.</td></tr>
+                <tr><td><strong>SharedArray</strong></td><td>Estructura inmutable cargada UNA vez en memoria, compartida entre todos los VUs.</td></tr>
+                <tr><td><strong>Scenario</strong></td><td>Conjunto de configuraciones (executor + opciones) ejecutables en paralelo.</td></tr>
+                <tr><td><strong>Trend</strong></td><td>Métrica que acumula estadísticas: min, avg, p90, p95, p99, max.</td></tr>
+                <tr><td><strong>Tag</strong></td><td>Etiqueta clave=valor en una métrica, permite filtrar y crear sub-métricas.</td></tr>
+                <tr><td><strong>Think time</strong></td><td>Tiempo de espera (<code>sleep</code>) entre acciones, simula comportamiento humano.</td></tr>
+                <tr><td><strong>Warm-up</strong></td><td>Fase inicial con poca carga para que la app caliente caches, JIT, conexiones.</td></tr>
+                <tr><td><strong>p95 / p99</strong></td><td>Percentiles: el 95%/99% de las muestras están por debajo de ese valor.</td></tr>
+                <tr><td><strong>TTFB</strong></td><td>Time To First Byte (medido por <code>http_req_waiting</code>).</td></tr>
+                <tr><td><strong>SLO</strong></td><td>Service Level Objective. Objetivo medible (ej: 99% de respuestas &lt;500ms).</td></tr>
+                <tr><td><strong>xk6</strong></td><td>Builder que compila k6 con extensiones Go personalizadas.</td></tr>
+                <tr><td><strong>jslib</strong></td><td>Repositorio oficial de librerías JS reutilizables (jslib.k6.io).</td></tr>
+                <tr><td><strong>Soak test</strong></td><td>Test de carga sostenida durante horas para detectar degradación.</td></tr>
+                <tr><td><strong>Spike test</strong></td><td>Salto brusco de tráfico, simula picos repentinos.</td></tr>
+                <tr><td><strong>Breakpoint</strong></td><td>Rampa lineal hasta encontrar el punto donde el sistema se rompe.</td></tr>
+            </table>
+        </section>
+
+        <section id="recursos-finales">
+            <h2>📚 Recursos para profundizar</h2>
+            <h3>Documentación oficial</h3>
+            <ul>
+                <li><a href="https://grafana.com/docs/k6/latest/" target="_blank">Documentación Grafana k6</a> — referencia completa y actualizada.</li>
+                <li><a href="https://github.com/grafana/k6" target="_blank">Repositorio GitHub</a> — código fuente, issues y releases.</li>
+                <li><a href="https://github.com/grafana/k6/releases" target="_blank">Release notes</a> — qué hay nuevo en cada versión.</li>
+                <li><a href="https://grafana.com/docs/k6/latest/javascript-api/" target="_blank">API JavaScript</a> — todos los módulos y funciones.</li>
+                <li><a href="https://jslib.k6.io/" target="_blank">jslib.k6.io</a> — librerías JS listas para importar.</li>
+            </ul>
+
+            <h3>Ejemplos y plantillas</h3>
+            <ul>
+                <li><a href="https://github.com/grafana/k6-example-checkout" target="_blank">k6-example-checkout</a> — flujo e-commerce completo.</li>
+                <li><a href="https://github.com/grafana/k6-template-typescript" target="_blank">k6-template-typescript</a> — plantilla TypeScript oficial.</li>
+                <li><a href="https://github.com/grafana/k6-rendering-api" target="_blank">k6-rendering-api</a> — patrones de browser testing.</li>
+                <li><a href="https://github.com/grafana/k6-learn" target="_blank">k6-learn</a> — curso oficial open-source.</li>
+            </ul>
+
+            <h3>Extensiones populares</h3>
+            <ul>
+                <li><a href="https://github.com/grafana/xk6-browser" target="_blank">xk6-browser</a> — pruebas de frontend reales.</li>
+                <li><a href="https://github.com/grafana/xk6-disruptor" target="_blank">xk6-disruptor</a> — chaos engineering.</li>
+                <li><a href="https://github.com/mostafa/xk6-kafka" target="_blank">xk6-kafka</a> — testing de streaming.</li>
+                <li><a href="https://github.com/grafana/xk6-sql" target="_blank">xk6-sql</a> — acceso a bases de datos.</li>
+                <li><a href="https://github.com/grafana/xk6-dashboard" target="_blank">xk6-dashboard</a> — dashboard en vivo.</li>
+            </ul>
+
+            <h3>Comunidad y aprendizaje</h3>
+            <ul>
+                <li><a href="https://community.grafana.com/c/grafana-k6/" target="_blank">Foro oficial</a> — preguntas y respuestas.</li>
+                <li><a href="https://k6.io/slack" target="_blank">Slack de k6</a> — chat con el equipo de Grafana.</li>
+                <li>Curso gratuito <strong>k6 Fundamentals</strong> en Grafana Labs Academy.</li>
+                <li>YouTube: canal de Grafana Labs (búsqueda "k6 office hours").</li>
+            </ul>
+
+            <h3>Para integrar con tu stack</h3>
+            <ul>
+                <li><a href="https://github.com/grafana/k6-operator" target="_blank">k6-operator</a> — ejecutar tests distribuidos en Kubernetes.</li>
+                <li><a href="https://github.com/grafana/setup-k6-action" target="_blank">setup-k6-action</a> — GitHub Action oficial.</li>
+                <li>Dashboard Grafana #2587 — visualización clásica para output InfluxDB.</li>
+                <li>Dashboard Grafana #19665 — para output Prometheus moderno.</li>
+            </ul>
+        </section>
+
+        <footer>
+            📘 <strong>Manual completo de k6</strong> generado en HTML offline · De principiante a experto · Cubre k6 1.x y novedades de k6 2.0 (AI-assisted, TypeScript nativo, Assertions API) · Última revisión: 2026
+        </footer>
+    </main>
+</div>
+<script>
+    (function() {
+        const links = document.querySelectorAll('.sidebar nav a');
+        const sections = document.querySelectorAll('.content section');
+
+        function setActive() {
+            let currentId = '';
+            const scrollPos = window.scrollY + 150;
+            sections.forEach(section => {
+                const top = section.offsetTop;
+                const bottom = top + section.offsetHeight;
+                if (scrollPos >= top && scrollPos < bottom) {
+                    currentId = section.getAttribute('id');
+                }
+            });
+            // Si estamos al final, marca la última
+            if (!currentId && (window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+                const lastSection = sections[sections.length - 1];
+                if (lastSection) currentId = lastSection.id;
+            }
+            links.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href').substring(1);
+                if (href === currentId) {
+                    link.classList.add('active');
+                    // Asegurar que la sección activa sea visible en el sidebar
+                    const sidebar = document.querySelector('.sidebar');
+                    const rect = link.getBoundingClientRect();
+                    if (rect.top < 100 || rect.bottom > sidebar.clientHeight - 50) {
+                        link.scrollIntoView({ block: 'nearest' });
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('scroll', setActive);
+        window.addEventListener('load', setActive);
+
+        links.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    })();
+</script>
+</body>
+</html>
